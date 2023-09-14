@@ -9,7 +9,7 @@ from numpy.random import default_rng
 class TSPResult:
     final_route: List[int]
     final_distance: float
-    progress: pd.DataFrame
+    progress: List[float]
 
     def __repr__(self):
         return "Final distance: " + str(self.final_distance) + "\nRoute: " + str(self.final_route)
@@ -25,7 +25,7 @@ def shuffle(lst: List[T]) -> List[T]:
     return lst_cp
 
 
-SUBDIVISION = 100_000
+SUBDIVISION = 10_000
 
 
 def logger(iters: int):

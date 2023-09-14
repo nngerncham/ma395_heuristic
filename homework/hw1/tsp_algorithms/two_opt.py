@@ -4,7 +4,7 @@ import pandas as pd
 from typing import Tuple, List, Callable
 from tsp_algorithms import TSPResult, logger
 
-TWO_OPT_DEFAULT_N_ITERS = 500_000
+TWO_OPT_DEFAULT_N_ITERS = 100_000
 
 
 def random_adj_idx(length: int) -> Tuple[int, int]:
@@ -44,5 +44,5 @@ def two_opt_tsp(cities: List[int],
     return TSPResult(
         final_route=current_path + [current_path[0]],
         final_distance=current_dist,
-        progress=pd.DataFrame({"distance": progress})
+        progress=progress
     )

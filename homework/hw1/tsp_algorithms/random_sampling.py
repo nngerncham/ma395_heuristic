@@ -27,5 +27,5 @@ def random_sampling_tsp(cities: List[int],
     return TSPResult(
         final_route=current_path + [current_path[0]],
         final_distance=current_dist,
-        progress=pd.DataFrame({"distance": dist_progress})
+        progress=dist_progress
     )
