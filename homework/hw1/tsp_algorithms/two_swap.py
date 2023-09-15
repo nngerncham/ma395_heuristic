@@ -10,7 +10,7 @@ TWO_SWAP_DEFAULT_N_ITERS = 100_000
 
 def generate_best_neighbors(current_path: List[int],
                             path_distance: Callable[[List[int]], float]) -> List[int]:
-    combs = list(distinct_combinations(current_path, 2))
+    combs = list(distinct_combinations([x for x in range(len(current_path))], 2))
 
     i1, i2 = combs[0]
     current_cities = current_path.copy()
@@ -37,7 +37,7 @@ def two_swap_tsp(cities: List[int],
     progress = [current_dist]
 
     for iters in range(n_iters):
-        logger(iters)
+        # logger(iters)
 
         best_neighbor = generate_best_neighbors(current_path, path_distance)
         current_path = min(best_neighbor, current_path, key=path_distance)
@@ -60,7 +60,7 @@ def rdn_two_swap_tsp(cities: List[int],
     progress = [current_dist]
 
     for iters in range(n_iters):
-        logger(iters)
+        # logger(iters)
 
         assert len(current_path) >= 2
         i1, i2 = rd.randint(len(current_path), size=(2,))

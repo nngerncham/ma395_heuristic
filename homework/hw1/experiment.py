@@ -1,3 +1,4 @@
+import multiprocessing as mp
 from typing import List, Callable
 
 import numpy as np
@@ -5,12 +6,12 @@ import pandas as pd
 
 from tsp_algorithms import TSPResult
 from tsp_algorithms.random_sampling import random_sampling_tsp
-from tsp_algorithms.two_opt import rdn_two_opt_tsp
+from tsp_algorithms.two_opt import two_opt_tsp, rdn_two_opt_tsp
 from tsp_algorithms.two_swap import two_swap_tsp, rdn_two_swap_tsp
 
-REPS = 10
-N_ITERS = 10
-SEEDS = [42, 19, 77, 66, 23, 21, 99, 20, 90, 44]
+REPS = 30
+N_ITERS = 7500
+SEEDS = np.random.randint(1000, size=REPS)
 
 
 def get_distance(dist_data: np.array, city1: int, city2: int):
@@ -54,41 +55,59 @@ def df_from_progresses(progresses: List[List[float]]):
     return df
 
 
-def run_experiment(path_to_data: str):
+def run_with_seed(seed, data, function):
+    np.random.seed(seed)
+    return run_progress(data, function)
+
+
+def run_experiment(path_to_data: str, to_exclude: List[str]):
     data = np.loadtxt(path_to_data, dtype=np.int32)
+    total = []
+    datas = [data for _ in range(REPS)]
 
-    ts_list = []
-    rts_list = []
-    rto_list = []
-    rs_list = []
+    with mp.Pool(mp.cpu_count()) as pool:
+        if "full_ts" not in to_exclude:
+            fs = [two_swap_tsp for _ in range(REPS)]
+            ts_list = pool.starmap(run_with_seed, zip(SEEDS, datas, fs))
 
-    for i in range(REPS):
-        np.random.seed(SEEDS[i])
-        ts_list.append(run_progress(data, two_swap_tsp))
+            ts_df = df_from_progresses(ts_list)
+            ts_df["Type"] = "Full 2-swap"
+            total.append(ts_df)
 
-        np.random.seed(SEEDS[i])
-        rts_list.append(run_progress(data, rdn_two_swap_tsp))
+        if "random_ts" not in to_exclude:
+            fs = [rdn_two_swap_tsp for _ in range(REPS)]
+            rts_list = pool.starmap(run_with_seed, zip(SEEDS, datas, fs))
 
-        np.random.seed(SEEDS[i])
-        rto_list.append(run_progress(data, rdn_two_opt_tsp))
+            rts_df = df_from_progresses(rts_list)
+            rts_df["Type"] = "Randomized 2-swap"
+            total.append(rts_df)
 
-        np.random.seed(SEEDS[i])
-        rs_list.append(run_progress(data, random_sampling_tsp))
+        if "full_to" not in to_exclude:
+            fs = [two_opt_tsp for _ in range(REPS)]
+            to_list = pool.starmap(run_with_seed, zip(SEEDS, datas, fs))
 
-    ts_df = df_from_progresses(ts_list)
-    ts_df["Type"] = "Full 2-swap"
+            to_df = df_from_progresses(to_list)
+            to_df["Type"] = "Full 2-opt"
+            total.append(to_df)
 
-    rts_df = df_from_progresses(rts_list)
-    rts_df["Type"] = "Randomized 2-swap"
+        if "random_to" not in to_exclude:
+            fs = [rdn_two_opt_tsp for _ in range(REPS)]
+            rto_list = pool.starmap(run_with_seed, zip(SEEDS, datas, fs))
 
-    rto_df = df_from_progresses(rto_list)
-    rto_df["Type"] = "Randomized 2-opt"
+            rto_df = df_from_progresses(rto_list)
+            rto_df["Type"] = "Randomized 2-opt"
+            total.append(rto_df)
 
-    rs_df = df_from_progresses(rs_list)
-    rs_df["Type"] = "Random sampling"
+        if "random_sample" not in to_exclude:
+            fs = [random_sampling_tsp for _ in range(REPS)]
+            rs_list = pool.starmap(run_with_seed, zip(SEEDS, datas, fs))
 
-    return pd.concat([ts_df, rts_df, rto_df, rs_df])
+            rs_df = df_from_progresses(rs_list)
+            rs_df["Type"] = "Random sampling"
+            total.append(rs_df)
+
+    return pd.concat(total)
 
 
 if __name__ == "__main__":
-    run_experiment("data/gr17_d.txt")
+    run_experiment("data/gr17_d.txt", [])
