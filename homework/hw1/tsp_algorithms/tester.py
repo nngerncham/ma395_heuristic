@@ -1,7 +1,7 @@
 from typing import List
 import numpy as np
 from tsp_algorithms.two_swap import two_swap_tsp
-from tsp_algorithms.two_opt import two_opt_tsp
+from tsp_algorithms.two_opt import rdn_two_opt_tsp
 from tsp_algorithms.random_sampling import random_sampling_tsp
 
 
@@ -25,7 +25,7 @@ def in_class_path_distance(path: List[int]):
 if __name__ == "__main__":
     rd_res = random_sampling_tsp([i for i in range(5)], in_class_path_distance, n_iters=50)
     ts_res = two_swap_tsp([i for i in range(5)], in_class_path_distance, n_iters=50)
-    to_res = two_opt_tsp([i for i in range(5)], in_class_path_distance, n_iters=50)
+    to_res = rdn_two_opt_tsp([i for i in range(5)], in_class_path_distance, n_iters=50)
 
     print(rd_res)
     print(ts_res)

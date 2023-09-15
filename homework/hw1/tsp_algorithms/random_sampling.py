@@ -10,7 +10,7 @@ def random_sampling_tsp(cities: List[int],
                         n_iters: int = RANDOM_SAMPLING_DEFAULT_N_ITERS) -> TSPResult:
     current_path = cities.copy()
     current_dist = path_distance(current_path)
-    dist_progress = [current_dist]
+    progress = [current_dist]
 
     for iters in range(n_iters):
         logger(iters)
@@ -22,10 +22,10 @@ def random_sampling_tsp(cities: List[int],
             current_dist = new_distance
             current_path = new_path
 
-        dist_progress.append(current_dist)
+        progress.append(current_dist)
 
     return TSPResult(
         final_route=current_path + [current_path[0]],
         final_distance=current_dist,
-        progress=dist_progress
+        progress=progress
     )

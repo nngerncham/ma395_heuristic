@@ -1,7 +1,7 @@
-import numpy.random as rd
-import pandas as pd
-
 from typing import Tuple, List, Callable
+
+import numpy.random as rd
+
 from tsp_algorithms import TSPResult, logger
 
 TWO_OPT_DEFAULT_N_ITERS = 100_000
@@ -19,9 +19,9 @@ def random_adj_idx(length: int) -> Tuple[int, int]:
     return p1, p2
 
 
-def two_opt_tsp(cities: List[int],
-                path_distance: Callable[[List[int]], float],
-                n_iters: int = TWO_OPT_DEFAULT_N_ITERS) -> TSPResult:
+def rdn_two_opt_tsp(cities: List[int],
+                    path_distance: Callable[[List[int]], float],
+                    n_iters: int = TWO_OPT_DEFAULT_N_ITERS) -> TSPResult:
     current_path = cities.copy()
     current_dist = path_distance(current_path)
     progress = [current_dist]
