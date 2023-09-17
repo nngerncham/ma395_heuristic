@@ -1,0 +1,57 @@
+\documentclass{article}
+
+\input{preamble.tex}
+\input{macros.tex}
+
+\title{\Huge{Homework 1}
+	\\
+	\Large\scshape{Heuristic Optimization}}
+\author{Nawat Ngerncham}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+	
+\section{Implementation Details}
+
+The full implementation of each algorithm can be found \hyperlink{https://github.com/nngerncham/ma395_heuristic/tree/main/homework/hw1/tsp_algorithms}{here}. Following are short descriptions of what each algorithm is.
+
+\begin{itemize}
+    \item \textbf{Random Sampling (RS)} ---
+        In each iteration, RS shuffles the cities in the path around and checks if the distance goes down or not. If so, then the best found solution is updated. Otherwise, nothing happens.
+
+    \item \textbf{Full 2-swap (TS)} ---
+        Starting from a random initial path, TS generates every combination of cities that can be swapped, performs the swap, and chooses the one that has the shortest distance. Then, it compares the shortest distance of the transformed paths and the current best path and updates the best found solution accordingly.
+    \item \textbf{Randomized 2-swap (RTS)} ---
+        Similarly to TS, RTS starts from a random initial path. However, it randomly selects ONE pair of cities to swap, performs the swap, then compares the distance and updates the best found solution accordingly.
+
+    \item \textbf{Full 2-opt (TO)} --- 
+        Starting from a random initial path, TO generates all valid (non-adjacent) pairs of cities in the path then tests if the path distance goes down or not in each iteration. If so, the best found solution is updated and nothing happens otherwise.
+    \item \textbf{Randomized 2-opt (RTO)} --- 
+        Similarly to TO, RTO starts from a random initial path. The difference is that in each iteration, RTO randomly picks ONE valid pair of cities in the path and performs the tranformation. Finally, it checks if the transformed path is better or not and updates accordingly.
+\end{itemize}
+
+\section{Results and Discussion}
+
+\subsection{Experiment Details}
+
+For each data set, each algorithm is tested in \(30\) trials and each of them runs \(7,500\) iterations per trial.
+
+\subsection{GR17}
+
+
+
+\subsection{FRI26}
+
+
+
+\subsection{ATT48}
+
+
+
+\section{Conclusion}
+
+
+
+\end{document}
