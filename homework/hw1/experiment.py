@@ -10,7 +10,6 @@ from tsp_algorithms.two_opt import two_opt_tsp, rdn_two_opt_tsp
 from tsp_algorithms.two_swap import two_swap_tsp, rdn_two_swap_tsp
 
 REPS = 30
-N_ITERS = 7500
 SEEDS = np.random.randint(1000, size=REPS)
 
 
@@ -33,10 +32,11 @@ def generate_city_list(no_cities: int) -> List[int]:
 
 
 def run_progress(data,
-                 to_apply: Callable[[List[int], Callable[[List[int]], float], int], TSPResult]) -> List[float]:
+                 to_apply: Callable[[List[int], Callable[[List[int]], float], int], TSPResult],
+                 n_iters: int) -> List[float]:
     length, _ = data.shape
     pd_computer = generate_pd_computer(data)
-    return to_apply(generate_city_list(length), pd_computer, N_ITERS).progress
+    return to_apply(generate_city_list(length), pd_computer, n_iters).progress
 
 
 def prep_progress(progress: List[float], trial_id: int):
@@ -55,20 +55,21 @@ def df_from_progresses(progresses: List[List[float]]):
     return df
 
 
-def run_with_seed(seed, data, function):
+def run_with_seed(seed, data, function, n_iters):
     np.random.seed(seed)
-    return run_progress(data, function)
+    return run_progress(data, function, n_iters)
 
 
-def run_experiment(path_to_data: str, to_exclude: List[str]):
+def run_experiment(path_to_data: str, to_exclude: List[str], n_iters: int):
     data = np.loadtxt(path_to_data, dtype=np.int32)
     total = []
     datas = [data for _ in range(REPS)]
+    n_iters_lst = [n_iters for _ in range(REPS)]
 
     with mp.Pool(mp.cpu_count()) as pool:
         if "full_ts" not in to_exclude:
             fs = [two_swap_tsp for _ in range(REPS)]
-            ts_list = pool.starmap(run_with_seed, zip(SEEDS, datas, fs))
+            ts_list = pool.starmap(run_with_seed, zip(SEEDS, datas, fs, n_iters_lst))
 
             ts_df = df_from_progresses(ts_list)
             ts_df["Type"] = "Full 2-swap"
@@ -76,7 +77,7 @@ def run_experiment(path_to_data: str, to_exclude: List[str]):
 
         if "random_ts" not in to_exclude:
             fs = [rdn_two_swap_tsp for _ in range(REPS)]
-            rts_list = pool.starmap(run_with_seed, zip(SEEDS, datas, fs))
+            rts_list = pool.starmap(run_with_seed, zip(SEEDS, datas, fs, n_iters_lst))
 
             rts_df = df_from_progresses(rts_list)
             rts_df["Type"] = "Randomized 2-swap"
@@ -84,7 +85,7 @@ def run_experiment(path_to_data: str, to_exclude: List[str]):
 
         if "full_to" not in to_exclude:
             fs = [two_opt_tsp for _ in range(REPS)]
-            to_list = pool.starmap(run_with_seed, zip(SEEDS, datas, fs))
+            to_list = pool.starmap(run_with_seed, zip(SEEDS, datas, fs, n_iters_lst))
 
             to_df = df_from_progresses(to_list)
             to_df["Type"] = "Full 2-opt"
@@ -92,7 +93,7 @@ def run_experiment(path_to_data: str, to_exclude: List[str]):
 
         if "random_to" not in to_exclude:
             fs = [rdn_two_opt_tsp for _ in range(REPS)]
-            rto_list = pool.starmap(run_with_seed, zip(SEEDS, datas, fs))
+            rto_list = pool.starmap(run_with_seed, zip(SEEDS, datas, fs, n_iters_lst))
 
             rto_df = df_from_progresses(rto_list)
             rto_df["Type"] = "Randomized 2-opt"
@@ -100,7 +101,7 @@ def run_experiment(path_to_data: str, to_exclude: List[str]):
 
         if "random_sample" not in to_exclude:
             fs = [random_sampling_tsp for _ in range(REPS)]
-            rs_list = pool.starmap(run_with_seed, zip(SEEDS, datas, fs))
+            rs_list = pool.starmap(run_with_seed, zip(SEEDS, datas, fs, n_iters_lst))
 
             rs_df = df_from_progresses(rs_list)
             rs_df["Type"] = "Random sampling"
@@ -110,4 +111,4 @@ def run_experiment(path_to_data: str, to_exclude: List[str]):
 
 
 if __name__ == "__main__":
-    run_experiment("data/gr17_d.txt", [])
+    run_experiment("data/gr17_d.txt", [], 100)
