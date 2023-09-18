@@ -15,54 +15,77 @@
 	
 \section{Implementation Details}
 
-The full implementation of each algorithm can be found \hyperlink{https://github.com/nngerncham/ma395_heuristic/tree/main/homework/hw1/tsp_algorithms}{here}. Following are short descriptions of what each algorithm is.
+The full implementation of each algorithm can be found \hyperlink{https://github.com/nngerncham/ma395_heuristic/tree/main/homework/hw1/tsp_algorithms}{here}. Following are short descriptions of how each algorithm creates its neighborhood.
 
 \begin{itemize}
-    \item \textbf{Random Sampling} ---
-        In each iteration, RS shuffles the cities in the path around and checks if the distance goes down or not
-
-    \item \textbf{Exhaustive 2-swap} ---
-        Starting from a random initial path, TS generates every combination of cities that can be swapped, performs the swap, and checks against current best found solution if the distance goes down or not
-    \item \textbf{Randomized 2-swap} ---
-        Similarly to TS, RTS starts from a random initial path. However, it randomly selects ONE pair of cities to swap, performs the swap, then compares the distance and updates the best found solution
-
-    \item \textbf{Exhaustive 2-opt} --- 
-        Starting from a random initial path, TO generates all valid (non-adjacent) pairs of cities in the path then tests if the path distance goes down or not in each iteration after the transformation
-    \item \textbf{Randomized 2-opt} --- 
-        Similarly to TO, RTO starts from a random initial path. The difference is that in each iteration, RTO randomly picks ONE valid pair of cities in the path and performs the tranformation then compares the distances
+    \item \textbf{Random Sampling} shuffles the cities in the path around
+    \item \textbf{Exhaustive 2-swap} generates every combination of cities that can be swapped
+    \item \textbf{Randomized 2-swap} chooses one pair of random cities
+    \item \textbf{Exhaustive 2-opt} generates all valid pairs of cities (non-adjacent cities)
+    \item \textbf{Randomized 2-opt} chooses one valid pair of random cities
 \end{itemize}
 
 \section{Experiment Details}
 
-The results presented here are from 30 trials. Each algorithm runs 1500, 2500, and 10000 iterations in each trial for GR17, FRI26, and ATT48, respectively.
+The plots of progress lines are collected from 30 trials. Each algorithm runs 1500, 2500, and 10000 iterations in each trial for GR17, FRI26, and ATT48, respectively. For the running time, the algorithms run 5000 iterations.
 
 \section{Results}
 
+The results presented here are from experiments run on an M2 MacBook.
+
 \begin{figure}[h]
-    \begin{subfigure}[b]{0.3\textwidth}
+    \begin{subfigure}[b]{0.33\textwidth}
         \includegraphics[width=\textwidth]{images/gr17_plot.png}
         \caption{GR17}
     \end{subfigure}
     \hfill
-    \begin{subfigure}[b]{0.3\textwidth}
+    \begin{subfigure}[b]{0.33\textwidth}
         \includegraphics[width=\textwidth]{images/fri26_plot.png}
         \caption{FRI26}
     \end{subfigure}
     \hfill
-    \begin{subfigure}[b]{0.3\textwidth}
+    \begin{subfigure}[b]{0.33\textwidth}
         \includegraphics[width=\textwidth]{images/att48_plot.png}
         \caption{ATT48}
     \end{subfigure}
     \caption{Progress line on each data set}
+    \label{fig:progress}
 \end{figure}
 
+\begin{table}[htbp]
+    \centering
+    \begin{tabular}{|ccccccc|}
+        \hline
+        \multirow{2}{*}{Algorithm Name} & \multicolumn{3}{c}{Total Time (s)} & \multicolumn{3}{c|}{Per-iteration Time (s)} \\
+                                        & GR17 & FRI26 & ATT48 & GR17 & FRI26 & ATT48 \\
+        \hline
+        \hline
+        Randomized Sampling & 0.062 & 0.066 & 0.078 & 0.000025 & 0.000026 & 0.000031 \\
+        Exhaustive 2-swap & 2.79 & 8.08 & 40.78 & 0.001 & 0.003 & 0.016 \\
+        Randomized 2-swap & 0.035 & 0.047 & 0.057 & 0.000014 & 0.000019 & 0.000023 \\
+        Exhaustive 2-opt & 2.89 & 8.47 & 42.29 & 0.001 & 0.003 & 0.017 \\
+        Randomized 2-opt & 0.032 & 0.037 & 0.048 & 0.000013 & 0.000015 & 0.000019 \\
+        \hline
+    \end{tabular}
+    \caption{Running time taken for each algorithm}
+    \label{table:time}
+\end{table}
 
 \section{Discussion}
 
-From the plots above, we can see that exhaustive or randomized, all of these algorithms will almost always get stuck in a local minimum at some point. (The true optimal solution is the black line at the bottom of each plot.) Random sampling is the only exception since it never reached anywhere near the true optimum and its rate of convergence is straight up horrible. So, we will mainly focus on 2-opt and 2-swap for the rest of this discussion.
+From the plots in Figure \ref{fig:progress}, we can see that exhaustive or randomized, all of these algorithms will almost always get stuck in a local minimum at some point. (The true optimal solution is the black line at the bottom of each plot.) Random sampling is the only exception since it never reached anywhere near the true optimum and its rate of convergence is straight up horrible. So, we will mainly focus on 2-opt and 2-swap for the rest of this discussion.
 
 Now, onto the results of exhaustive versions of 2-swap and 2-opt. On every data set, it is clear that 2-opt always performs far better than 2-swap. I suspect that this is because the transformation in each iteration of 2-opt changes two edges instead of 2-swap's four. As a result, it is able to make smaller changes and explore the search space a bit more---increasing the likelihood that it hits a better approximate optimum. However, it is still affected by the local minimum problem. Still, the local minimum that 2-opt reaches is still better than any other algorithm, exhaustive or randomized.
 
 This observation is untrue for randomized versions, however. Randomized 2-swap and 2-opt each starts off performing roughly about the same, i.e. reaching similar local minimums in GR17. However, the gap between their performance increases as the size of the data set becomes larger to the point that it becomes very significant in ATT48.
 
+Although exhaustive 2-opt is able to converge to an approximate optimal solution that is very close to the true optimal solution in just a few iterations, we need to consider the running time of each iteration as well. As seen in Table \ref{table:time}, the running time of the randomized variant grows very slowly---less than \(10^{-5}\) among the three data sets. In contrast, the running time of exhaustive variant grows almost 20 times from GR17 to ATT48. 
+
+Similarly, the total running time of the randomized variant barely grows as the data set becomes bigger but the total running time of the exhaustive variant grows over 10 times from GR17 to ATT48. This means that as the data set scales to hundreds or thousands of cities, the running time will grow so fast that it becomes unrealistic to use the exhaustive variant.
+
+\section{Conclusion}
+
+Overall, the best algorithm for solving (approximate) Traveling Salesperson Problem is 2-opt as it has finer controls over how the solution transforms over time. Although the exhaustive search variant gives a very good approximate solution, its fast-growing running time would make it unrealistic as the number of cities scales up to hundreds or thousands of cities. 
+
+Therefore, randomized 2-opt is, by far, the best choice among all algorithms tested. With reasonable expectation of how close the approximate solution is to optimality, randomized 2-opt will converge to a ``good enough'' approximate optimal solution within reasonable time and number of iterations.
 \end{document}

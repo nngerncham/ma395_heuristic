@@ -3,6 +3,7 @@ from typing import List, Callable
 
 import numpy as np
 import pandas as pd
+import time
 
 from tsp_algorithms import TSPResult
 from tsp_algorithms.random_sampling import random_sampling_tsp
@@ -108,6 +109,36 @@ def run_experiment(path_to_data: str, to_exclude: List[str], n_iters: int):
             total.append(rs_df)
 
     return pd.concat(total)
+
+
+def run_timer(path_to_data: str, to_exclude: List[str], n_iters: int):
+    data = np.loadtxt(path_to_data, dtype=np.int32)
+    n, _ = data.shape
+    path = generate_city_list(n)
+    dist_computer = generate_pd_computer(data)
+
+    def timer_helper(name: str, algo):
+        start = time.time()
+        _ = algo(path, dist_computer, n_iters)
+        end = time.time()
+        print(f"=== {name} ===")
+        print(f"Total for {n_iters} iters: {end - start}s")
+        print(f"Avg: {(end - start) / n_iters}s per iteration\n")
+
+    if "full_ts" not in to_exclude:
+        timer_helper("Exhaustive 2-swap", two_swap_tsp)
+
+    if "random_ts" not in to_exclude:
+        timer_helper("Randomized 2-swap", rdn_two_swap_tsp)
+
+    if "full_to" not in to_exclude:
+        timer_helper("Exhaustive 2-opt", two_opt_tsp)
+
+    if "random_to" not in to_exclude:
+        timer_helper("Randomized 2-opt", rdn_two_opt_tsp)
+
+    if "random_sample" not in to_exclude:
+        timer_helper("Random sampling", random_sampling_tsp)
 
 
 if __name__ == "__main__":

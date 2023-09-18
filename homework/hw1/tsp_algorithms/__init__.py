@@ -1,5 +1,3 @@
-import pandas as pd
-
 from dataclasses import dataclass
 from typing import List, TypeVar
 from numpy.random import default_rng

@@ -1,4 +1,3 @@
-import pandas as pd
 from typing import List, Callable
 from tsp_algorithms import TSPResult, shuffle, logger
 
