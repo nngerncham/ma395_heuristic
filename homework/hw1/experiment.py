@@ -15,10 +15,18 @@ SEEDS = np.random.randint(1000, size=REPS)
 
 
 def get_distance(dist_data: np.array, city1: int, city2: int):
+    """
+    Gets the distance from the distance matrix
+    """
     return dist_data[city1, city2]
 
 
 def generate_pd_computer(dist_data: np.array) -> Callable[[List[int]], float]:
+    """
+    Generates a function that computes the total path distance based on the data set
+    This is so that the experiments can be run in parallel and thus saves time
+    """
+
     def pd_computer_with_data(path: List[int]) -> float:
         path_to_use = path + [path[0]]
         return np.sum([get_distance(dist_data, x, y) for x, y in zip(path_to_use[:-1], path_to_use[1:])])
@@ -27,6 +35,9 @@ def generate_pd_computer(dist_data: np.array) -> Callable[[List[int]], float]:
 
 
 def generate_city_list(no_cities: int) -> List[int]:
+    """
+    Generates a randomized initial path
+    """
     xs = [x for x in range(no_cities)]
     np.random.shuffle(xs)
     return xs
@@ -35,12 +46,18 @@ def generate_city_list(no_cities: int) -> List[int]:
 def run_progress(data,
                  to_apply: Callable[[List[int], Callable[[List[int]], float], int], TSPResult],
                  n_iters: int) -> List[float]:
+    """
+    Runs one trial of experiment on the algorithm passed in as `to_apply` on the data set for N iterations
+    """
     length, _ = data.shape
     pd_computer = generate_pd_computer(data)
     return to_apply(generate_city_list(length), pd_computer, n_iters).progress
 
 
 def prep_progress(progress: List[float], trial_id: int):
+    """
+    Transforms the progress from List of distances to a List of Tuple(iteration, trial, distance progress)
+    """
     n = len(progress)
     trial_ids = np.repeat(trial_id, n)
     iterations = np.arange(n)
@@ -49,6 +66,10 @@ def prep_progress(progress: List[float], trial_id: int):
 
 
 def df_from_progresses(progresses: List[List[float]]):
+    """
+    Concatenates the progress from different trials and makes a Pandas DataFrame
+    so that it is more suitable for plotting
+    """
     total = []
     for i, progress in enumerate(progresses):
         total.extend(prep_progress(progress, i))
@@ -57,16 +78,26 @@ def df_from_progresses(progresses: List[List[float]]):
 
 
 def run_with_seed(seed, data, function, n_iters):
+    """
+    Runs an experiment starting from a certain seed on given data set, algorithm, and number of iterations
+    """
     np.random.seed(seed)
     return run_progress(data, function, n_iters)
 
 
 def run_experiment(path_to_data: str, to_exclude: List[str], n_iters: int):
+    """
+    Takes in a path to the data set (distance matrix) file and runs all algorithms
+    (except ones in `to_exclude`) for N iterations
+    """
+
+    # Prepping for parallelization
     data = np.loadtxt(path_to_data, dtype=np.int32)
     total = []
     datas = [data for _ in range(REPS)]
     n_iters_lst = [n_iters for _ in range(REPS)]
 
+    # Runs each algorithm 30 times for `n_iters` iterations in parallel
     with mp.Pool(mp.cpu_count()) as pool:
         if "full_ts" not in to_exclude:
             fs = [two_swap_tsp for _ in range(REPS)]
@@ -112,6 +143,10 @@ def run_experiment(path_to_data: str, to_exclude: List[str], n_iters: int):
 
 
 def run_timer(path_to_data: str, to_exclude: List[str], n_iters: int):
+    """
+    Times the amount of time a function takes and prints the average per iteration and total time
+    given some number of iterations
+    """
     data = np.loadtxt(path_to_data, dtype=np.int32)
     n, _ = data.shape
     path = generate_city_list(n)

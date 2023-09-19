@@ -11,12 +11,15 @@ def random_sampling_tsp(cities: List[int],
     current_dist = path_distance(current_path)
     progress = [current_dist]
 
+    # Repeating N times
     for iters in range(n_iters):
         # logger(iters)
 
+        # Copies the original path and shuffles them around--basically creating a random sample
         new_path = shuffle(cities.copy())
         new_distance = path_distance(new_path)
 
+        # Updates accordingly
         if new_distance < current_dist:
             current_dist = new_distance
             current_path = new_path
