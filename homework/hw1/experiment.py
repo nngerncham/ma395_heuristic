@@ -10,7 +10,7 @@ from tsp_algorithms.random_sampling import random_sampling_tsp
 from tsp_algorithms.two_opt import two_opt_tsp, rdn_two_opt_tsp
 from tsp_algorithms.two_swap import two_swap_tsp, rdn_two_swap_tsp
 
-REPS = 30
+REPS = 10
 SEEDS = np.random.randint(1000, size=REPS)
 
 
@@ -73,7 +73,7 @@ def df_from_progresses(progresses: List[List[float]]):
     total = []
     for i, progress in enumerate(progresses):
         total.extend(prep_progress(progress, i))
-    df = pd.DataFrame(total).rename(columns={0: "Iterations", 1: "Trial", 2: "Distance"})
+    df = pd.DataFrame(total).rename(columns={0: "Iteration", 1: "Trial", 2: "Best cost"})
     return df
 
 
