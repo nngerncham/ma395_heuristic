@@ -1,0 +1,79 @@
+\section*{Problem 3}
+
+\noindent\textbf{Part 1: For a fixed temperature \(T\), determine the transition matrix \(\Theta(T)\).}
+
+First, let us identify the Pertubation Probability Matrix \(P(T)\) and the Acceptance Probability Matrix \(A(T)\) at a fixed temperature \(T\). From the diagram, we can see that the neighbors of each vertex are as follows.
+\[
+\begin{aligned}
+    s_1 &: \left\{s_1, s_3, s_4\right\} \\
+    s_2 &: \left\{s_2, s_3, s_4, s_5\right\} \\
+    s_3 &: \left\{s_1, s_2, s_3\right\} \\
+    s_4 &: \left\{s_1, s_2, s_4, s_5\right\} \\
+    s_5 &: \left\{s_2, s_4, s_5\right\}
+\end{aligned}
+\]
+Thus, we can construct \(P\) as follows:
+\[
+    P(T) = \begin{bmatrix}
+        \frac{1}{3} & 0 & \frac{1}{3} & \frac{1}{3} & 0 \\
+        0 & \frac{1}{4} & \frac{1}{4} & \frac{1}{4} & \frac{1}{4} \\
+        \frac{1}{3} & \frac{1}{3} & \frac{1}{3} & 0 & 0 \\
+        \frac{1}{4} & \frac{1}{4} & 0 & \frac{1}{4} & \frac{1}{4} \\
+        0 & \frac{1}{3} & 0 & \frac{1}{3} & \frac{1}{3}
+    \end{bmatrix}
+\]
+
+Next, we can construct \(A(T)\) based on the diagram and costs as follows:
+\[
+    A(T) = \begin{bmatrix}
+        1 & e^{-\frac1T} & e^{-\frac2T} & e^{-\frac3T} & 1 \\
+        1 & 1 & e^{-\frac1T} & e^{-\frac2T} & 1 \\
+        1 & 1 & 1 & e^{-\frac1T} & 1 \\
+        1 & 1 & 1 & 1 & 1 \\
+        1 & e^{-\frac1T} & e^{-\frac2T} & e^{-\frac3T} & 1
+    \end{bmatrix}
+\]
+
+Finally, we can construct the Transition Probability Matrix \(\Theta(T)\) by multiplying \(P(T)\) and \(A(T)\) piece-wise and replacing the diagonals.
+\[
+    \Theta(T) = \begin{bmatrix}
+        1 - \frac{1}{3}\left(e^{-\frac2T} + e^{-\frac3T}\right) & 0 & \frac{1}{3}e^{-\frac2T} & \frac{1}{3}e^{-\frac3T} & 0 \\
+        0 & \frac{3}{4} - \frac{1}{4}\left(e^{-\frac1T} + e^{-\frac2T}\right) & \frac{1}{4}e^{-\frac1T} & \frac14e^{-\frac2T} & \frac14 \\
+        \frac13 & \frac13 & \frac13 & 0 & 0 \\
+        \frac14 & \frac14 & 0 & \frac14 & \frac14 \\
+        0 & \frac13e^{-\frac1T} & 0 & \frac13e^{-\frac3T} & 1 - \frac{1}{3}\left(e^{-\frac1T} + e^{-\frac3T}\right)
+    \end{bmatrix}
+\]
+
+\noindent\textbf{Part 2: Find the stationary distribution \(\pi(T)\).}
+
+Now, we want to find \(\pi(T) = [\pi_1(T), \pi_2(T), \pi_3(T), \pi_4(T), \pi_5(T)]\) such that \(\pi = \pi P\). This can be done by solving the following system of equations (with SageMath). For the sake of simplicity, the \((T)\) in \(\pi(T)\) will be omitted.
+\[
+\begin{aligned}
+    \pi_1 &= -\frac{1}{3} \, \pi_{1} {\left(e^{\left(-\frac{2}{T}\right)} + e^{\left(-\frac{3}{T}\right)} - 3\right)} + \frac{1}{3} \, \pi_{3} + \frac{1}{4} \, \pi_{4} \\
+    \pi_2 &= -\frac{1}{4} \, \pi_{2} {\left(e^{\left(-\frac{1}{T}\right)} + e^{\left(-\frac{2}{T}\right)} - 3\right)} + \frac{1}{3} \, \pi_{5} e^{\left(-\frac{1}{T}\right)} + \frac{1}{3} \, \pi_{3} + \frac{1}{4} \, \pi_{4} \\
+    \pi_3 &= \frac{1}{4} \, \pi_{2} e^{\left(-\frac{1}{T}\right)} + \frac{1}{3} \, \pi_{1} e^{\left(-\frac{2}{T}\right)} + \frac{1}{3} \, \pi_{3} \\
+    \pi_4 &= \frac{1}{4} \, \pi_{2} e^{\left(-\frac{2}{T}\right)} + \frac{1}{3} \, \pi_{1} e^{\left(-\frac{3}{T}\right)} + \frac{1}{3} \, \pi_{5} e^{\left(-\frac{3}{T}\right)} + \frac{1}{4} \, \pi_{4} \\
+    \pi_5 &= -\frac{1}{3} \, \pi_{5} {\left(e^{\left(-\frac{1}{T}\right)} + e^{\left(-\frac{3}{T}\right)} - 3\right)} + \frac{1}{4} \, \pi_{2} + \frac{1}{4} \, \pi_{4} \\
+    1 &= \sum_{i=1}^5 \pi_i
+\end{aligned}
+\]
+
+Solving by SageMath, we obtain:
+\[
+\begin{aligned}
+    \pi_{1} &= \frac{3 \, e^{\frac{3}{T}}}{6 \, e^{\frac{3}{T}} + 4 \, e^{\frac{2}{T}} + 3 \, e^{\frac{1}{T}} + 4} \\
+    \pi_{2} &= \frac{4 \, e^{\frac{2}{T}}}{6 \, e^{\frac{3}{T}} + 4 \, e^{\frac{2}{T}} + 3 \, e^{\frac{1}{T}} + 4} \\
+    \pi_{3} &= \frac{3 \, e^{\frac{1}{T}}}{6 \, e^{\frac{3}{T}} + 4 \, e^{\frac{2}{T}} + 3 \, e^{\frac{1}{T}} + 4} \\
+    \pi_{4} &= \frac{4}{6 \, e^{\frac{3}{T}} + 4 \, e^{\frac{2}{T}} + 3 \, e^{\frac{1}{T}} + 4} \\
+    \pi_{5} &= \frac{3 \, e^{\frac{3}{T}}}{6 \, e^{\frac{3}{T}} + 4 \, e^{\frac{2}{T}} + 3 \, e^{\frac{1}{T}} + 4}
+\end{aligned}
+\]
+Even SageMath cannot simplify this further. So, I won't attempt at it because it will be even worse.
+
+\noindent\textbf{Part 3: Find the optimizing distribution.}
+
+To find the optimizing distribution, we want to find \(\lim_{T \to 0^+} \pi(T)\). Again, we will use SageMath (my beloved) for this. Finally, we have that the optimizing distribution is:
+\[
+    \lim_{T \to 0^+} \pi(T) = \left[\frac12, 0, 0, 0, \frac12\right]
+\]

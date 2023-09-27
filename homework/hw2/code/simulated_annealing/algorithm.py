@@ -1,9 +1,12 @@
-import numpy as np
 from dataclasses import dataclass
-from numpy import ndarray
+from math import log
 from typing import Callable, List
 
-ACCEPTANCE_RATE_INTERVALS = 20
+import numpy as np
+from numpy import ndarray
+
+EXPLORATION_RATIO = 0.3
+EXPLORATION_AR = 0.5
 
 
 @dataclass
@@ -24,9 +27,12 @@ class SAResult:
 def simple_simulated_annealing(objective_f: Callable[[ndarray or List], float],
                                generate_neighbor: Callable[[ndarray or List], ndarray or List],
                                initial_solution: ndarray,
-                               initial_temperature: float = 1_000,
-                               max_iterations: int = 10_000,
+                               initial_temperature: float = None,
+                               max_iterations: int = 5000,
                                temp_factor: float = 0.95) -> SAResult:
+    if initial_temperature is None:
+        initial_temperature = - 1 / (log(EXPLORATION_AR) * temp_factor ** (EXPLORATION_RATIO * max_iterations)) / 1e6
+
     c_progress = []
     b_progress = []
     acceptance = []
@@ -54,9 +60,9 @@ def simple_simulated_annealing(objective_f: Callable[[ndarray or List], float],
                 best_cost = current_cost
 
         elif np.random.uniform() < np.exp(- delta_cost / current_temp):
+            acceptance.append(1)
             current_soln = new_candidate
             current_cost = new_cost
-            acceptance.append(1)
         else:
             acceptance.append(0)
 
