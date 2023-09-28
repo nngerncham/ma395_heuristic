@@ -1,6 +1,6 @@
 \section*{Problem 3}
 
-\noindent\textbf{Part 1: For a fixed temperature \(T\), determine the transition matrix \(\Theta(T)\).}
+\subsection*{Part 1: Determining the transition matrix for fixed temperature \(T\)}
 
 First, let us identify the Pertubation Probability Matrix \(P(T)\) and the Acceptance Probability Matrix \(A(T)\) at a fixed temperature \(T\). From the diagram, we can see that the neighbors of each vertex are as follows.
 \[
@@ -45,7 +45,7 @@ Finally, we can construct the Transition Probability Matrix \(\Theta(T)\) by mul
     \end{bmatrix}
 \]
 
-\noindent\textbf{Part 2: Find the stationary distribution \(\pi(T)\).}
+\subsection*{Part 2: Finding the stationary distribution}
 
 Now, we want to find \(\pi(T) = [\pi_1(T), \pi_2(T), \pi_3(T), \pi_4(T), \pi_5(T)]\) such that \(\pi = \pi P\). This can be done by solving the following system of equations (with SageMath). For the sake of simplicity, the \((T)\) in \(\pi(T)\) will be omitted.
 \[
@@ -71,7 +71,7 @@ Solving by SageMath, we obtain:
 \]
 Even SageMath cannot simplify this further. So, I won't attempt at it because it will be even worse.
 
-\noindent\textbf{Part 3: Find the optimizing distribution.}
+\subsection*{Part 3: Finding the optimizing distribution}
 
 To find the optimizing distribution, we want to find \(\lim_{T \to 0^+} \pi(T)\). Again, we will use SageMath (my beloved) for this. Finally, we have that the optimizing distribution is:
 \[

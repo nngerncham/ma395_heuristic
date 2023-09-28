@@ -27,15 +27,14 @@ class SAResult:
 def simple_simulated_annealing(objective_f: Callable[[ndarray or List], float],
                                generate_neighbor: Callable[[ndarray or List], ndarray or List],
                                initial_solution: ndarray,
-                               initial_temperature: float = None,
+                               initial_temperature: float = 1_000,
                                max_iterations: int = 5000,
                                temp_factor: float = 0.95) -> SAResult:
-    if initial_temperature is None:
-        initial_temperature = - 1 / (log(EXPLORATION_AR) * temp_factor ** (EXPLORATION_RATIO * max_iterations)) / 1e6
-
     c_progress = []
     b_progress = []
     acceptance = []
+    worse_accept = 0
+    worse_solutions = 0
 
     current_soln = initial_solution
     current_cost = objective_f(current_soln)
@@ -51,7 +50,8 @@ def simple_simulated_annealing(objective_f: Callable[[ndarray or List], float],
 
         delta_cost = new_cost - current_cost
         if delta_cost < 0:
-            acceptance.append(1)
+            acceptance.append(worse_accept / worse_solutions if worse_solutions != 0 else 0)
+
             current_soln = new_candidate
             current_cost = new_cost
 
@@ -60,11 +60,14 @@ def simple_simulated_annealing(objective_f: Callable[[ndarray or List], float],
                 best_cost = current_cost
 
         elif np.random.uniform() < np.exp(- delta_cost / current_temp):
-            acceptance.append(1)
+            worse_accept += 1
+            worse_solutions += 1
+            acceptance.append(worse_accept / worse_solutions)
             current_soln = new_candidate
             current_cost = new_cost
         else:
-            acceptance.append(0)
+            worse_solutions += 1
+            acceptance.append(worse_accept / worse_solutions)
 
         iters += 1
         current_temp *= temp_factor

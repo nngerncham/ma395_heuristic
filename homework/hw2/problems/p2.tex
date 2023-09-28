@@ -1,0 +1,67 @@
+\section*{Problem 2}
+
+\subsection*{Part 1: Implementing the Simple Simulated Annealing Algorithm with Gaussian and Uniform Perturbation}
+
+The full implementation can be found \href{https://github.com/nngerncham/ma395_heuristic/tree/main/homework/hw2/code/simulated_annealing}{here}. Specifically, the simulated annealing algorithm is shared with the one for TSP but the neighbor functions are different and can be found \href{https://github.com/nngerncham/ma395_heuristic/blob/main/homework/hw2/code/simulated_annealing/cont_neighbors.py}{here}. Following is a quick round-up of parameters used.
+\begin{itemize}
+    \item \(T_0\)'s tested are 1, 10, 50, 100, and 1000
+    \item \(\alpha\) or cooling rate is fixed at \(0.95\)
+    \item \(\sigma_i = 0.1 \cdot B(i)\) where \(B(i)\) denotes the length of the bounds for the \(i\)-th dimension
+    \item Maximum number of iterations is 200
+\end{itemize}
+
+For the perturbation, there is a slight modification to the method given from the handout. Suppose that the \(a_i, b_i \in \mathbb{R}\) are the bounds for some dimension \(i\). That is, \(x_i \in [a_i, b_i]\). The modifications are as follows:
+
+\[
+\begin{aligned}
+    \textit{Gaussian} &:
+        x_i' = \begin{cases}
+            x_i + \sigma_i\mathcal{N}(0, 1), & a_i \leq x_i' \leq b_i \\
+            a_i, & x_i' < a_i \\
+            b_i, & x_i' > b_i
+        \end{cases} \\
+    \textit{Uniform} &:
+        x_i' = \mathcal{U}\left(\max\left\{a_i, x_i-\sigma_i\right\}, \min\left\{b_i, x_i+\sigma_i\right\}\right)
+\end{aligned}
+\]
+These are to ensure that the \(x_i'\) that will be used in the next iteration is still within our given bounds.
+
+\phantom{line}
+
+\subsection*{Part 2: Solving the egg crate function}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{images/cont_sa.png}
+    \caption{Simulated annealing on egg crate function}
+    \label{fig:cont-sa}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{images/cont_sa_noerr.png}
+    \caption{Best cost on egg crate function without error}
+    \label{fig:cont-sa-noerr}
+\end{figure}
+
+\subsubsection*{Acceptance rate}
+
+For around the first 25 iterations, almost all new solution candidates will be better than the current one. Thus, the acceptance rate starts at 0 and grows quickly to a certain level depending on \(T_0\) and stays there for the rest of the 175-ish iterations. This could be due to the low number of iterations since many of the neighbors would be better than the current solution that we have at the start.
+
+\subsubsection*{Current cost}
+
+When \(T_0\) is low (1 or 10), it is very clear that the Gaussian is the better perturbation method as it generally better neighbors, leading to better costs overall. The general trend is that the current cost slowly decreases as more iterations are executed.
+
+On the other hand, Gaussian and uniform perturbation have very different and interesting behaviors when \(T_0\) is high. The progress line for uniform perturbation looks very similar to the best cost progress line, i.e., it slowly decreases as more iterations occur, though with better costs than with lower \(T_0\)'s. However, the current cost from Gaussian perturbation jumps around very frantically. This really shows the effects of how the temperature affects the probability of accepting a worse candidate solution, especially how the cost for \(T_0=1000\) really jumps around until around halfway through the experiment. This could be very useful for spiky/hilly objective functions.
+
+\subsubsection*{Best cost}
+
+Notice that for \(T_0 =\) 1 and 10, the best cost never reaches the optimal value. This could be due to the fact that they do not explore anymore after only a short period of time. While the difference between the best cost found by uniform perturbation is rather large, that difference become almost negligible with Gaussian perturbation. Ultimately, neither of them reached the optimal value within 200 iterations but still gets quite close. Adding more iterations may help but setting \(T_0\) to be a greater impact.
+
+Setting \(T_0 =\) 50, 100, and 1000, the performance of SA becomes very difficult to differentiate as all of them converge to the optimum rather quickly. All of them seem to converge within the first 50 iterations. While uniform perturbation seems to converge slightly faster than Gaussian with these initial temps, the difference is very small. Additionally, these difference could really be due to the random generator in each trial since---while they do use the same seeds---the RNG engine that generates the random variates could be implemented differently for different distributions.
+
+An interesting result is that the Gaussian seems to get similar improvement patterns after \(T_0 = 50\). Hence, there might not be that much point in starting with \(T_0\) that is really high, say, over 100.
+
+\subsubsection*{Conclusion}
+
+These experiments have shown that for continuous cost functions, simulated annealing offers very good performance given reasonable bounds and initial temperatures (\(T_0 \approx 100\)). Overall, Gaussian perturbation method seems to be the superior perturbation method as they appear to explore more than uniform perturbation at the same temperature while still giving similar solutions.
