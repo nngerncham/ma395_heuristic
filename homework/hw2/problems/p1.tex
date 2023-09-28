@@ -1,0 +1,84 @@
+\section*{Problem 1}
+
+\subsection*{Part 1: Implementing the Simple Simulated Annealing Algorithm for TSP problems}
+
+The full implimentation can be found \href{https://github.com/nngerncham/ma395_heuristic/tree/main/homework/hw2/code/simulated_annealing}{here}. The simulated annealing algorithm itself is implemented in such a way that the parameters \(T_0, \alpha\), and the max number of iterations can be tweaked but the defaults are \(1000, 0.95,\) and 5000, respectively.
+
+The algorithm itself takes as arguments the objective function, the neighbor function, and the initial solution. The constraint is that the objective function must be \(f: \mathbb{R}^d \to \mathbb{R}\), and the neighbor function must be \(N: \mathbb{R}^d \to \mathbb{R}^d\). That is, both takes in a vector/list/array of numbers and returns a number for the objective function and a vector/list/array for the neighbor function. For TSP, the cities are encoded as integers and stored as an array. The implementation for the neighbor function can be found \href{https://github.com/nngerncham/ma395_heuristic/blob/main/homework/hw2/code/simulated_annealing/tsp_neighbors.py}{here}.
+
+\subsection*{Part 2: Solving GR17, FRI26, and ATT48}
+
+\subsubsection*{Simulated annealing on its own}
+
+\begin{figure}
+    \centering
+    \includegraphics[height=0.5\textheight]{images/gr17_sa.png}
+    \caption{Simulated annealing results on GR17}
+    \label{fig:gr17-sa}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[height=0.4\textheight]{images/gr17-no-error.png}
+    \caption{Simulated annealing results on GR17 with no error bar}
+    \label{fig:gr17-ne}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[height=0.5\textheight]{images/fri26_sa.png}
+    \caption{Simulated annealing results on FRI26}
+    \label{fig:fri26-sa}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[height=0.4\textheight]{images/fri26-no-error.png}
+    \caption{Simulated annealing results on FRI26 with no error bar}
+    \label{fig:fri26-ne}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[height=0.5\textheight]{images/att48_sa.png}
+    \caption{Simulated annealing results on ATT48}
+    \label{fig:att48-sa}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[height=0.4\textheight]{images/att48-no-error.png}
+    \caption{Simulated annealing results on ATT48 with no error bar}
+    \label{fig:att48-ne}
+\end{figure}
+
+From the Figures \ref{fig:gr17-sa}, \ref{fig:fri26-sa}, and \ref{fig:att48-sa} (and more clearly in \ref{fig:gr17-ne}, \ref{fig:fri26-ne}, and \ref{fig:att48-ne}), we can see that, at least for TSP problems, \(T_0\) and acceptance rate does not have that big of an effect on the final best cost. While there is some slight difference in the final best cost on GR17 and FRI26, all best costs essentially approach the same value on ATT48.
+
+What \(T_0\) does affect, however, is how fast the best cost decreases over time. Since, with higher \(T_0\), the algorithm accepts worse solutions for longer which could cause their neighbors to be worse as well. For instance, on ATT48 (Figure \ref{fig:att48-ne}), there is a significant difference in best cost between \(T_0=50000\) and the rest at around iterations 200 to 2100. Hence, it is safe to say that setting \(T_0\) too high is not always ideal as it would require more time to get a good-enough solution compared to other values.
+
+For the next section, \(T_0=10000\) will be used to represent SA algorithms as it has similar best cost progression to \(T_0=\) 100 and 1000 while still allowing for more exploration early on and giving the second best solutions on smaller on GR17 and FRI26, losing only to \(T_0=50000\) where it is evident that it might not be ideal.
+
+\subsubsection*{Simulated annealing compared to hill climbing}
+
+\begin{figure}
+    \centering
+    \includegraphics[]{images/gr17-with-hc.png}
+    \caption{Simulated annealing and hill climbing on GR17}
+    \label{fig:gr17}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[]{images/fri26-with-hc.png}
+    \caption{Simulated annealing and hill climbing on FRI26}
+    \label{fig:fri26}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[]{images/att48-with-hc.png}
+    \caption{Simulated annealing and hill climbing s on ATT48}
+    \label{fig:att48}
+\end{figure}
+
+\subsection*{Part 3: Selecting \(T_0\)}
