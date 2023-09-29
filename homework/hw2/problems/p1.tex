@@ -101,8 +101,43 @@ At least in the case of solving TSP, the implementation overhead and optimizing 
 
 \subsection*{Part 3: Selecting \(T_0\)}
 
-As briefly mentioned before, simulated annealing was tested on \(T_0 = 10, 50, 100, 1000, 5000, 10000\) (and also 25000 and 50000 for ATT48). From the experiments, we can see that higher acceptance rate at the start does not lead to better final solutions. This is only evident in ATT48 as it has a data set big enough that reaching the true optimal is very difficult. Using simulated annealing with 2-opt on GR17 and FRI26 gives the optimal values no matter what \(T_0\) is. Similarly, while no configuration achieved the optimal ATT48, the average final best cost is 
+\begin{table}
+    \centering
+    \begin{tabular}{|c|c|cc|}
+        \hline
+        Algorithm & \(T_0\) & Average best cost & Minimum best cost \\
+        \hline
+        Simulated annealing 2-opt & 10 & 35675.12 & 34337 \\
+                                  & 50 & 35633.02 & 34212 \\
+                                  & 100 & 35599.67 & 33809 \\
+                                  & 500 & 35633.02 & 34212 \\
+                                  & 1000 & 35683.67 & 33888 \\
+                                  & 5000 & 35735.46 & 34047 \\
+                                  & 10000 & 35639.81 & 33759 \\
+                                  & 25000 & 35796.26 & 34086 \\
+                                  & 50000 & 35735.73 & 33653 \\
+        \hline
+        Simulated annealing 2-swap & 10 & 49757.11 & 39018 \\
+                                   & 50 & 49798.82 & 41174 \\
+                                   & 100 & 49757.15 & 39984 \\
+                                   & 500 & 49920.80 & 39715 \\
+                                   & 1000 & 49333.90 & 38801 \\
+                                   & 5000 & 49307.98 & 39183 \\
+                                   & 10000 & 49872.49 & 42594 \\
+                                   & 25000 & 50324.74 & 42313 \\
+                                   & 50000 & 49595.99 & 38887 \\
+        \hline
+    \end{tabular}
+    \caption{Average and minimum best cost on ATT48}
+    \label{table:avg-min-att48}
+\end{table}
 
-% When choosing the \(T_0\) to be used to compare with hill climbing, the decision is mainly based on the acceptance rate, how fast the best cost plateaus, and how good the final best cost is. As mentioned before, \(T_0\) doesn't have much impact on the final best cost as they all seem to converge to the same values. However, \(T_0\) does affect acceptance rate and how fast the best cost plateaus.
+As briefly mentioned before, simulated annealing was tested on \(T_0 = 10, 50, 100, 1000, 5000, 10000\) on GR17 and FRI26. \(T_0 = \) 25000 and 50000 were also tested for ATT48. In Table \ref{table:avg-min-att48}, the average best cost is the average value of the best cost in the last iteration of the algorithm. Minimum best cost is the lowest best cost across every trial for a given \(T_0\).
 
-% Thus, the main criteria \(T_0\) is selected by are the acceptance rate and plateau speed. Namely, the \(T_0\) selected are ones that has, on average, around 60-70\% acceptance rate at the first \(\frac{1}{10}^\text{th}\) iterations of all iterations and has middle-of-the-pack plateau speed. The reasoning for picking the middle-of-the-pack plateau speed is so that it balances exploration early on and the ability to give good solutions within lower number of iterations at the end.
+From the experiments results in Figure \ref{fig:gr17}, \ref{fig:fri26}, and \ref{fig:att48}, we can see that higher acceptance rate at the start does not lead to better final solutions as they seem to approach similar values. This is more evident in ATT48 as it has a data set big enough that reaching the true optimal is very difficult. However, using simulated annealing with 2-opt on GR17 and FRI26 gives the optimal values no matter what \(T_0\) is.
+
+In Table \ref{table:avg-min-att48}, we can see that the average best cost for both algorithms are roughly the same. Using SA with 2-opt, we obtain an average best cost of \(\approx 35600\) to \(35800\). While \(T_0=10000\) gives the lowest minimum best cost of any trial (cost \(= 33759\)), it is not very different from the minimum best costs of other \(T_0\)'s (costs \(\approx 34000\)) and this result might have just happened by chance since we are picking the lowest across all trials.
+
+Using SA with 2-swap, we obtain the average best cost of around \(\approx 49000\) to \(50000\). The lowest minimum best cost is obtained when \(T_0 = 1000\) with cost \(38801\). Still, this might have just happened by chance.
+
+In conclusion, at least for TSP problems, \(T_0\) does not have that much impact on the accuracy of the solutions produced by simulated annealing, but simulated annealing is still better than hill climbing since it allows for more exploration.
