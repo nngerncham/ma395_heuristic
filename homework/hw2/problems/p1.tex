@@ -4,7 +4,13 @@
 
 The full implimentation can be found \href{https://github.com/nngerncham/ma395_heuristic/tree/main/homework/hw2/code/simulated_annealing}{here}. The simulated annealing algorithm itself is implemented in such a way that the parameters \(T_0, \alpha\), and the max number of iterations can be tweaked but the defaults are \(1000, 0.95,\) and 5000, respectively.
 
-The algorithm itself takes as arguments the objective function, the neighbor function, and the initial solution. The constraint is that the objective function must be \(f: \mathbb{R}^d \to \mathbb{R}\), and the neighbor function must be \(N: \mathbb{R}^d \to \mathbb{R}^d\). That is, both takes in a vector/list/array of numbers and returns a number for the objective function and a vector/list/array for the neighbor function. For TSP, the cities are encoded as integers and stored as an array. The implementation for the neighbor function can be found \href{https://github.com/nngerncham/ma395_heuristic/blob/main/homework/hw2/code/simulated_annealing/tsp_neighbors.py}{here}.
+The algorithm itself takes as arguments the objective function, the neighbor function, and the initial solution. The constraint is that the objective function must be \(f: \mathbb{R}^d \to \mathbb{R}\), and the neighbor function must be \(N: \mathbb{R}^d \to \mathbb{R}^d\). That is, both takes in a vector/list/array of numbers and returns a number for the objective function and a vector/list/array for the neighbor function. For TSP, the cities are encoded as integers and stored as an array. The implementation for the neighbor function can be found \href{https://github.com/nngerncham/ma395_heuristic/blob/main/homework/hw2/code/simulated_annealing/tsp_neighbors.py}{here}. Following is a quick round-up of parameters tested.
+\begin{itemize}
+    \item \(T_0\)'s tested are 10, 50 100, 1000, 5000, 10000
+    \item \(\alpha\) or cooling rate is fixed at 0.95
+    \item Maximum number of iterations are 1500, 2500, and 5000 for GR17, FRI26, and ATT48, respectively
+    \item The number of repeats the experiments are run is 30 and the data used for HC is from the previous homework
+\end{itemize}
 
 \subsection*{Part 2: Solving GR17, FRI26, and ATT48}
 
@@ -54,31 +60,49 @@ The algorithm itself takes as arguments the objective function, the neighbor fun
 
 From the Figures \ref{fig:gr17-sa}, \ref{fig:fri26-sa}, and \ref{fig:att48-sa} (and more clearly in \ref{fig:gr17-ne}, \ref{fig:fri26-ne}, and \ref{fig:att48-ne}), we can see that, at least for TSP problems, \(T_0\) and acceptance rate does not have that big of an effect on the final best cost. While there is some slight difference in the final best cost on GR17 and FRI26, all best costs essentially approach the same value on ATT48.
 
-What \(T_0\) does affect, however, is how fast the best cost decreases over time. Since, with higher \(T_0\), the algorithm accepts worse solutions for longer which could cause their neighbors to be worse as well. For instance, on ATT48 (Figure \ref{fig:att48-ne}), there is a significant difference in best cost between \(T_0=50000\) and the rest at around iterations 200 to 2100. Hence, it is safe to say that setting \(T_0\) too high is not always ideal as it would require more time to get a good-enough solution compared to other values.
-
-For the next section, \(T_0=10000\) will be used to represent SA algorithms as it has similar best cost progression to \(T_0=\) 100 and 1000 while still allowing for more exploration early on and giving the second best solutions on smaller on GR17 and FRI26, losing only to \(T_0=50000\) where it is evident that it might not be ideal.
+What \(T_0\) does affect, however, is how fast the best cost decreases over time. Since, with higher \(T_0\), the algorithm accepts worse solutions for longer which could cause their neighbors to be worse as well. That is, higher \(T_0\) leads to higher early best costs but not better final best costs. Hence, it is safe to say that setting \(T_0\) too high is not always ideal as it would require more time to get a good-enough solution compared to other values.
 
 \subsubsection*{Simulated annealing compared to hill climbing}
 
 \begin{figure}
     \centering
-    \includegraphics[]{images/gr17-with-hc.png}
+    \includegraphics[height=0.27\textheight]{images/gr17-with-hc.png}
     \caption{Simulated annealing and hill climbing on GR17}
     \label{fig:gr17}
 \end{figure}
 
 \begin{figure}
     \centering
-    \includegraphics[]{images/fri26-with-hc.png}
+    \includegraphics[height=0.27\textheight]{images/fri26-with-hc.png}
     \caption{Simulated annealing and hill climbing on FRI26}
     \label{fig:fri26}
 \end{figure}
 
 \begin{figure}
     \centering
-    \includegraphics[]{images/att48-with-hc.png}
-    \caption{Simulated annealing and hill climbing s on ATT48}
+    \includegraphics[height=0.27\textheight]{images/att48-with-hc.png}
+    \caption{Simulated annealing and hill climbing on ATT48}
     \label{fig:att48}
 \end{figure}
 
+The \(T_0\)'s used are 100 for all data sets it gives the best solutions for all data sets. This suggests that TSP might be a problem where exploration does not help much and it is better to keep exploiting the neighbors of same solution over and over again until any improvement is found.
+
+% Across all data sets, we observe that 2-opt is the superior neighbor function regardless of algorithm. This is not so clear in GR17 but the difference of best costs between using 2-opt and 2-swap as the neighbor function becomes very significant on FRI26 and ATT48.
+
+% On the other hand, given the same neighbor function, the difference of best cost between algorithms is slightly noticable with GR17. However, the difference shrinks as the data set becomes larger to the point where it is barely noticable in ATT48. However, it is still worth noting that simulated annealing gives a better final best cost on average with the same number of iterations.
+
+% Another interesting trend seen in GR17 and FRI26 (and vaguely in ATT48) is that the best cost of hill climbing (simply denoted as Randomized in plot) variants begins lower than simulated annealing variants. However, the best cost obtained from SA is able to reach lower values within the first \(\frac{1}{5}^\text{th}\) iterations of the maximum number of iterations. This suggests that SA performs better than HC given sufficient number of iterations where sufficient number of iterations is not very high.
+
+\subsubsection*{Conclusion}
+
+From the experiments, we can conclude that 2-opt is the better neighbor function and, among the two algorithms, simulated annealing seems to be the better one as it is able to give the best final best cost within the same number of iterations. This comes with the caveat that there are multiple parameters to be tweaked to fit the actual problem itself in order to produce the best results since \(T_0\) also depends on the size of the problem itself as well.
+
+At least in the case of solving TSP, the implementation overhead and optimizing the parameters may not be worth it in some real-world applications where the user is able to tolerate higher errors but needs the solution very quickly. However, the fact that SA has tweakable parameters makes it a very powerful tool when there is more time to investigate good parameters in order to produce the best results.
+
 \subsection*{Part 3: Selecting \(T_0\)}
+
+As briefly mentioned before, simulated annealing was tested on \(T_0 = 10, 50, 100, 1000, 5000, 10000\) (and also 25000 and 50000 for ATT48). From the experiments, we can see that higher acceptance rate at the start does not lead to better final solutions. This is only evident in ATT48 as it has a data set big enough that reaching the true optimal is very difficult. Using simulated annealing with 2-opt on GR17 and FRI26 gives the optimal values no matter what \(T_0\) is. Similarly, while no configuration achieved the optimal ATT48, the average final best cost is 
+
+% When choosing the \(T_0\) to be used to compare with hill climbing, the decision is mainly based on the acceptance rate, how fast the best cost plateaus, and how good the final best cost is. As mentioned before, \(T_0\) doesn't have much impact on the final best cost as they all seem to converge to the same values. However, \(T_0\) does affect acceptance rate and how fast the best cost plateaus.
+
+% Thus, the main criteria \(T_0\) is selected by are the acceptance rate and plateau speed. Namely, the \(T_0\) selected are ones that has, on average, around 60-70\% acceptance rate at the first \(\frac{1}{10}^\text{th}\) iterations of all iterations and has middle-of-the-pack plateau speed. The reasoning for picking the middle-of-the-pack plateau speed is so that it balances exploration early on and the ability to give good solutions within lower number of iterations at the end.
