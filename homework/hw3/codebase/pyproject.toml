@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "tabu_search"
+version = "0.1.0"
+description = ""
+authors = ["Nawat Ngerncham <67263644+nngerncham@users.noreply.github.com>"]
+
+[tool.poetry.dependencies]
+python = "3.10.9"
+numpy = "^1.26.0"
+seaborn = "^0.13.0"
+jupyter = "^1.0.0"
+pandas = "^2.1.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
