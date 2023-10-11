@@ -61,7 +61,7 @@ def tabu_search(cost: Callable[[Collection], float],
                 cost_current = cost(s_current)
 
             # update best costs
-            if cost_current < cost_best:
+            if cost_current <= cost_best:
                 s_best = s_current
                 cost_best = cost_current
 
