@@ -46,22 +46,18 @@ def tabu_search(cost: Callable[[Collection], float],
     for i in range(max_iters):
         # generates neighbors and their respective attributes and sort by cost
         nbrs, attrs = tabu_neighbor.neighbors(s_current)
-        sorted_nbrs = sorted(zip(nbrs, attrs), key=lambda x: tabu_neighbor.evaluate(x[0], i))
+        nbr, attr = min(zip(nbrs, attrs), key=lambda x: tabu_neighbor.evaluate(x[0], i))
 
-        # checking neighbor for tabu-ness, skip that iteration if all is tabu
-        for nbr, attr in sorted_nbrs:
-            # if is not tabu, accept immediately
-            if not tabu_neighbor.is_tabu(attr, i):
-                s_current = nbr
-                cost_current = cost(s_current)
-                tabu_neighbor.add(attr, i)
-                break
-            # is tabu but cost < AL
-            elif tabu_neighbor.evaluate(nbr, i) < cost_best:
-                s_current = nbr
-                cost_current = cost(s_current)
-                tabu_neighbor.add(attr, i)
-                break
+        # if is not tabu, accept immediately
+        if not tabu_neighbor.is_tabu(attr, i):
+            s_current = nbr
+            cost_current = cost(s_current)
+            tabu_neighbor.add(attr, i)
+        # is tabu but cost < AL
+        elif tabu_neighbor.evaluate(nbr, i) < cost_best:
+            s_current = nbr
+            cost_current = cost(s_current)
+            tabu_neighbor.add(attr, i)
 
         # update best costs
         if cost_current <= cost_best:

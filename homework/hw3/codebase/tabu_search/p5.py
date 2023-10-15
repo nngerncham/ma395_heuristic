@@ -3,48 +3,46 @@ import numpy as np
 from tabu_search.algorithm import TabuSearchResult
 
 
-def p4_freq_tabu_search(s0, cost,
+def p5_freq_tabu_search(s0, cost,
                         tenure_length=4,
-                        nbr_sample_size=3,
                         max_iters=200,
                         explore_interval=30,
                         freq_multiplier=5,
                         ) -> TabuSearchResult:
     best_soln = current_soln = s0
     best_cost = current_cost = cost(s0)
-    tabu_table = np.zeros((9, 9), dtype=int)
+    tabu_table = np.zeros(8)
+    freq_table = np.zeros(8)
 
     currents = [current_cost]
     bests = [best_cost]
 
     for i in range(max_iters):
-        def score(nbr):
-            i1, i2 = sorted(nbr)
+        def score(nbr):  # nbr is a single index
             nbr_path = current_soln.copy()
-            nbr_path[i1], nbr_path[i2] = nbr_path[i2], nbr_path[i1]
+            nbr_path[nbr] = (nbr_path[nbr] + 1) % 2  # flip the index
 
             nbr_cost = cost(nbr_path)
             if nbr_cost <= best_cost or i % explore_interval != 0:
                 return nbr_cost
             else:
-                return nbr_cost + freq_multiplier * tabu_table[i2, i1]
+                return nbr_cost + freq_multiplier * freq_table[nbr]
 
-        nbrs = [np.random.choice(9, 2, replace=False) for _ in range(nbr_sample_size)]
+        nbrs = np.arange(8)
         min_nbr = min(nbrs, key=score)
-        i1, i2 = sorted(min_nbr)
         mutated_soln = current_soln.copy()
-        mutated_soln[i1], mutated_soln[i2] = mutated_soln[i2], mutated_soln[i1]
+        mutated_soln[min_nbr] = (mutated_soln[min_nbr] + 1) % 2
 
-        if tabu_table[i1, i2] < i:  # is not tabu
+        if tabu_table[min_nbr] < i:  # is not tabu
             current_soln = mutated_soln
             current_cost = cost(current_soln)
-            tabu_table[i1, i2] = i + tenure_length
-            tabu_table[i2, i1] += 1
+            tabu_table[min_nbr] = i + tenure_length
+            freq_table[min_nbr] += 1
         elif score(min_nbr) <= best_cost:  # tabu but better than best
             current_soln = mutated_soln
             current_cost = cost(current_soln)
-            tabu_table[i1, i2] = i + tenure_length
-            tabu_table[i2, i1] += 1
+            tabu_table[min_nbr] = i + tenure_length
+            freq_table[min_nbr] += 1
 
         if current_cost <= best_cost:
             best_soln = current_soln
