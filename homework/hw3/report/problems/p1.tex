@@ -131,7 +131,7 @@ The progress plots are in Figure \ref{fig:p1-change-attr}. From the plots, we ca
     \item The average current and best cost progress lines when storing both edges pretty much have constant difference after some point
 \end{itemize}
 
-So, we can see that storing a single edge is far better than storing both. This could be because storing both edges and checking if that exact swap has been done or not is less stringent storing both edges. This leads to more exploration of the search space, but---as mentioned when we were changing only \(|T|\)---this instance of MST really benefits from more exploitation. 
+So, we can see that storing a single edge is far better than storing both. This could be because storing both edges makes the tabu criteria more stringent by storing and checking both edges, leading to less chance for a move to be tabu. This means that TS behaves more similar to greedy local search which can easily get stuck in a local optimum. This might not be so useful since the solutions for MST can have the same values which could prevent exploration from happening.
 
 Thus, we will pick the added edge to be the attribute stored as it offers a more gradual change of standard deviation over deleted edge where there is a sharp drop at around iteration 50.
 
@@ -157,7 +157,7 @@ Thus, we will pick the added edge to be the attribute stored as it offers a more
     \label{fig:p1-change-attr}
 \end{figure}
 
-\subsubsection{``Best'' parameters}
+\subsubsection{\textit{Best} parameters}
 
 Putting the previous three sections together, below is the result of what I consider to be the best parameters for using Tabu Search on this instance of MST. Namely, we will use \(|T| = 2\), \(|V^*| = 4\), and storing the added edge. Below is the progress plot.
 

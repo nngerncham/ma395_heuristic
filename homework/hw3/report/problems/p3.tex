@@ -1,0 +1,47 @@
+\section{Tabu Search on Module Swap}
+
+\subsection{Implementation}
+
+The full implementation can be found \href{https://github.com/nngerncham/ma395_heuristic/blob/main/homework/hw3/codebase/Notebooks/Problem\%203.ipynb}{here}. Specifically, the attributes stored for each implementation are as follows:
+\begin{itemize}
+    \item \texttt{SwapMinTabuList} stores the minimum element that were swapped in the tabu list
+    \item \texttt{SwapMaxTabuList} stores the maximum element that were swapped in the tabu list
+    \item \texttt{SwapPairMatrixTabuList} stores swapped elements in a matrix where entry \((i, j)\) is the last iteration where the swap of elements \(i, j\) is tabu (this is the variant used in class)
+\end{itemize}
+
+\subsection{Experiments}
+
+\begin{figure}[ht]
+    \centering
+    \hfill
+    \begin{subfigure}{0.45\textwidth}
+        \includegraphics[width=\textwidth]{../images/p3/store-min.png}
+        \caption{Storing min element of swap}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.45\textwidth}
+        \includegraphics[width=\textwidth]{../images/p3/store-max.png}
+        \caption{Storing max element of swap}
+    \end{subfigure}
+    \hfill
+
+    \hfill
+    \begin{subfigure}{0.45\textwidth}
+        \includegraphics[width=\textwidth]{../images/p3/store-swap.png}
+        \caption{Storing the swap}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.45\textwidth}
+        \includegraphics[width=\textwidth]{../images/p3/store-swap2.png}
+        \caption{Storing the swap (range)}
+    \end{subfigure}
+    \hfill
+    \caption{Effects of storing different attributes in }
+    \label{fig:p3-attrs}
+\end{figure}
+
+From the plots in Figure \ref{fig:p3-attrs}, we can see that storing both elements in the swap makes the tabu criteria more stringent, resulting in less moves being tabu. This causes TS to act more like a greedy local search algorithm which can easily get stuck in a local optimum. This might not be so useful in the context of module swaps as well since there could be multiple solutions with the same cost.
+
+In contrast, making the tabu criteria less stringent and making more moves tabu makes the algorithm explore more and leads to better solution. Observe that storing both modules doesn't guarantee reaching the optimum but storing a single one does. However, the difference between storing the max and the min does not have that much difference.
+
+Thus, we can conclude that storing a single module/element makes the tabu criteria less stringent---making more moves tabu---and works better than the one in class.

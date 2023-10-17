@@ -6,25 +6,23 @@ Notice that the optimal solution is
 \[
     S^* = \langle 0, 0, 0, 0, 1, 1, 1, 0, 1 \rangle,\quad W(S^*) = 56
 \]
-where \(W\) is the cost function. Namely, \(W(x) = \sum_{i=1}^9 w_i x_i\). Below are a few progress plots for this instance of MST. In Figure \ref{fig:p2-default}, we can see that using the parameters from the last problem still could not get us to the optimal. So, we tweaked a the parameters a little bit in Figure \ref{fig:p2-tweaked}.
-
-\begin{figure}[ht]
-    \centering
-    \includegraphics[width=0.5\textwidth]{../images/p2/default.png}
-    \caption{\(|T| = 2, |V^*| = 4\)}
-    \label{fig:p2-default}
-\end{figure}
+where \(W\) is the cost function. Namely, \(W(x) = \sum_{i=1}^9 w_i x_i\). Below are a few progress plots for this instance of MST. From Figure \ref{fig:p2-tweaked}, we can see that... Wait... It converges...
 
 \begin{figure}[ht]
     \centering
     \hfill
-    \begin{subfigure}{0.45\textwidth}
+    \begin{subfigure}{0.3\textwidth}
+        \includegraphics[width=\textwidth]{../images/p2/default.png}
+        \caption{\(|T| = 2, |V^*| = 4\)}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.3\textwidth}
         \centering
         \includegraphics[width=\textwidth]{../images/p2/small-incr.png}
         \caption{\(|T| = 4, |V^*| = 5\)}
     \end{subfigure}
     \hfill
-    \begin{subfigure}{0.45\textwidth}
+    \begin{subfigure}{0.3\textwidth}
         \centering
         \includegraphics[width=\textwidth]{../images/p2/large-incr.png}
         \caption{\(|T| = 6, |V^*| = 10\)}
@@ -33,5 +31,3 @@ where \(W\) is the cost function. Namely, \(W(x) = \sum_{i=1}^9 w_i x_i\). Below
     \caption{Progress plots with tweaked parameters}
     \label{fig:p2-tweaked}
 \end{figure}
-
-From Figure \ref{fig:p2-tweaked}, we can see that even with 1000 iterations and 500 trials, it is still unable to reach the exact optimum. So, we will conclude it is impossible for TS that only uses short-term memory for its tabu list to converge on this instance of MST.
