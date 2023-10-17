@@ -126,9 +126,7 @@ So, while higher neighborhood size leads to higher accuracy, it also takes longe
 The progress plots are in Figure \ref{fig:p1-change-attr}. From the plots, we can make the following observations:
 \begin{itemize}
     \item Storing single edge leads to lower standard deviation for the best cost progress
-        \begin{itemize}
-            \item Storing the deleted edge starts with higher standard deviation but becomes lower than storing the added edge after around 50 iterations
-        \end{itemize}
+    \item Storing the deleted edge starts with higher standard deviation but becomes lower than storing the added edge after around 50 iterations
     \item In contrast, storing a single edge leads to higher and more chaotic standard deviation of the current cost progress
     \item The average current and best cost progress lines when storing both edges pretty much have constant difference after some point
 \end{itemize}
@@ -165,8 +163,9 @@ Putting the previous three sections together, below is the result of what I cons
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=0.75\textwidth]{../images/p1/best.png}
+    \includegraphics[width=0.5\textwidth]{../images/p1/best.png}
     \caption{\(|T| = 2\), \(|V^*| = 4\), storing the added edge}
+    \label{fig:p1-best}
 \end{figure}
 
 With this parameter, TS converges to the exact optimal every time, and all of them converges within 80 iterations.
