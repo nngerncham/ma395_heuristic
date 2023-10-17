@@ -1,0 +1,71 @@
+\section{Tabu Search with Frequency}
+
+\subsection{Implementation}
+
+Due to some unforeseen circumstances, my implementation of TS for the previous problems does not support what I want to do for this problem anymore. So, I reimplemented TS but with very minor difference in logic from the one used for previous problems. The full implementation can be found \href{https://github.com/nngerncham/ma395_heuristic/blob/main/homework/hw3/codebase/tabu_search/p4.py}{here} and the Jupyter Notebook used can be found \href{https://github.com/nngerncham/ma395_heuristic/blob/main/homework/hw3/codebase/Notebooks/Problem\%204.ipynb}{here}.
+
+The policy for handling the aspiration criterion is that if every 30 iterations, it will replace the cost function with the score or \(\epsilon\) function to sort \(V^*\). Then, the value used to compare with the aspiration level is also computed by \(\epsilon\).
+
+\subsection{Experiments}
+
+In Figure \ref{fig:3x2-figure}, we show the progresses of each variant of TS in comparison to storing the swap with frequency. For storing min and swap without frequency, the parameters used were \(|T| = 4\) and \(|V^*| = 3\). Same goes with the untweaked swap with frequency. The tweaked swap store with frequency uses \(|V^*| = 6\), however. The evaluation function \(\epsilon\) is the same as in the handout. Namely,
+\[
+    \epsilon(H, s^*) = \begin{cases}
+        \text{cost}(s^*) & \text{cost}(s^*) \leq \text{cost}(s) \\
+        \text{cost}(s^*) + 5 \times \text{Freq}(i, j) & \text{otherwise}
+    \end{cases}
+\]
+
+Note that the figure only shows the progress plot for storing min since storing the min or max does not have that big of a difference in terms of the progress. The intervals that \(\epsilon\) is used to evaluate the move is done every 30 iterations.
+
+\begin{figure}[ht]
+    \centering
+    \hfill
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{../images/p4/store-min.png}
+        \caption{Storing min}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{../images/p4/store-min-pi.png}
+        \caption{Storing min (range)}
+    \end{subfigure}
+    \hfill
+
+    \hfill
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{../images/p4/store-pair.png}
+        \caption{Storing swap}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{../images/p4/store-freq-base.png}
+        \caption{Storing swap with frequency}
+    \end{subfigure}
+    \hfill
+
+    \hfill
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{../images/p4/store-freq-tweaked.png}
+        \caption{Storing swap with frequency, tweaked}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{../images/p4/store-freq-tweaked-pi.png}
+        \caption{Storing swap with frequency, tweaked (range)}
+    \end{subfigure}
+    \hfill
+
+    \caption{Progress plots of different variants of TS}
+    \label{fig:3x2-figure}
+\end{figure}
+
+From the plots, we can see that while storing a single edge from the swap always converges within 600 iterations, the tweaked swap store with frequency always converges within less than 250 iterations. Notice also that the standard deviation for storing swap with frequency and storing min are about the same but the mean is lower.
+
+We will hypothesize that the decrease in objective function cost comes from the fact that \(\epsilon\) enforces more exploration just by making sure that infrequently made moves will have lower scores. This means that TS is more likely to go through more elements of the feasible region, leading to faster convergence and more accurate results.
