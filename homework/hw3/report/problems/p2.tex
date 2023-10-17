@@ -1,12 +1,12 @@
 \section{Downsides of Short-term Memory}
 
-The Jupyter Notebook used for this problem can be found \href{https://github.com/nngerncham/ma395_heuristic/blob/main/homework/hw3/codebase/Notebooks/Problem\%202.ipynb}{here}. The plots shown here are also showing the prediction interval---essentially, range of possible values---since it would better show that it is impossible to reach the exact optimum.
+The Jupyter Notebook used for this problem can be found \href{https://github.com/nngerncham/ma395_heuristic/blob/main/homework/hw3/codebase/Notebooks/Problem\%202.ipynb}{here}. The plots shown here are showing the prediction interval---essentially, range of possible values---since it would better show that it is impossible to reach the exact optimum. For this problem, the results shown are from 500 trials of each set of parameters.
 
 Notice that the optimal solution is
 \[
     S^* = \langle 0, 0, 0, 0, 1, 1, 1, 0, 1 \rangle,\quad W(S^*) = 56
 \]
-where \(W\) is the cost function. Namely, \(W(x) = \sum_{i=1}^9 w_i x_i\). Below are a few progress plots for this instance of MST. From Figure \ref{fig:p2-tweaked}, we can see that... Wait... It converges...
+where \(W\) is the cost function. Namely, \(W(x) = \sum_{i=1}^9 w_i x_i\) where \(w_i\) is the weight of edge \(i\). Below are a few progress plots for this instance of MST. From Figure \ref{fig:p2-tweaked}, we can see that---wait... It converges...
 
 \begin{figure}[ht]
     \centering

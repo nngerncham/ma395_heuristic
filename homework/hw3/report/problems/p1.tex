@@ -6,7 +6,7 @@ The full implementation for the algorithm by itself can be found \href{https://g
 
 The algorithm itself is implemented according to the algorithm in the slides (slide 5, page 8). Specifically, it only checks the best neighbor in each iteration and if every neighbor is tabu and doesn't meet the aspiration criterion, it just continues on to the next iteration without re-generating the neighborhood.
 
-The neighbor and tabu list class (\texttt{NeighborsTabuListInterface}) simply makes sure that for whatever configuration we want for the tabu list, we can make it without having to rewrite the algorithm. Namely, it takes in the tenure length \(|T|\), neighbor sample size \(|V^*|\), and the cost function and supports adding the attribute to \(T\), generating the neighborhood, evaluating a solution (is the cost function by default but can be changed for probabilitic TS), and the checking if an attribute is tabu or not.
+The neighbor and tabu list class (\texttt{NeighborsTabuListInterface}) simply makes sure that for whatever configuration we want for the tabu list, we can make it without having to rewrite the algorithm. Namely, it takes in the tenure length \(|T|\), neighbor sample size \(|V^*|\), and the cost function and supports adding the attribute to \(T\), generating the neighborhood, evaluating a solution (is the cost function by default but can be changed for probabilitic TS), and checking if an attribute is tabu or not.
 
 Then, the problem-specific setup (cost function, neighbor tabu list class, etc.) can be found in \href{https://github.com/nngerncham/ma395_heuristic/blob/main/homework/hw3/codebase/Notebooks/Problem\%201.ipynb}{this Jupyter Notebook}.
 
@@ -27,33 +27,24 @@ The progress plots can be seen in Figure \ref{fig:p1-change-tenure}. From the pl
     \item Longer tenure length results in increasing current cost progress
     \item Longer tenure length also results in bigger standard deviation for the best cost and current cost progress
 \end{itemize}
-
-So, we can conclude that it is better to do more exploitation than exploration for this instance of MST. Thus, we will choose \(|T| = 2\) as our best tenure length for this problem.
+From these observations, we will choose \(|T| = 2\) as our best tenure length for this problem since it is the only that guarantees convergence.
 
 \begin{figure}[ht]
     \centering
     \hfill
-    \begin{subfigure}{0.45\textwidth}
+    \begin{subfigure}{0.32\textwidth}
         \centering
         \includegraphics[width=\textwidth]{../images/p1/added24s.png}
         \caption{\(|T| = 2\)}
     \end{subfigure}
     \hfill
-    \begin{subfigure}{0.45\textwidth}
+    \begin{subfigure}{0.32\textwidth}
         \centering
         \includegraphics[width=\textwidth]{../images/p1/added34s.png}
-        \caption{\(|T| = 3\)}
+        \caption{\(|T| = 3\) (handout)}
     \end{subfigure}
     \hfill
-
-    \hfill
-    \begin{subfigure}{0.45\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{../images/p1/added44s.png}
-        \caption{\(|T| = 4\)}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}{0.45\textwidth}
+    \begin{subfigure}{0.32\textwidth}
         \centering
         \includegraphics[width=\textwidth]{../images/p1/added64s.png}
         \caption{\(|T| = 6\)}
@@ -66,9 +57,9 @@ So, we can conclude that it is better to do more exploitation than exploration f
 
 \subsubsection{Only changing \(|V^*|\)}
 
-The progress plots is in Figure \ref{fig:p1-change-nsize}. From the plots, we can see that larger neighborhood size results in both faster convergence and lower average current cost progress. It also results in smaller standard deviation in the current cost progress as well. However, it does come with higher running time as show in Table \ref{table:sample-time}.
+The progress plots are in Figure \ref{fig:p1-change-nsize}. From the plots, we can see that larger neighborhood size results in both faster convergence and lower average current cost progress. It also results in smaller standard deviation in the current cost progress as well. However, it does come with higher running time as show in Table \ref{table:sample-time}.
 
-So, while higher neighborhood size leads to higher accuracy, it also takes longer to run. Thus, we will pick \(|V^*|=4\) to be our best neighborhood size for this problem since it offers a good balance between running time (around 1 second for 200 trials of 100 iterations) and low standard deviation on the best cost progress.
+So, while higher neighborhood size leads to higher accuracy, it also takes longer to run. Thus, we will pick \(|V^*|=4\) to be our best neighborhood size for this problem since it offers a good balance between running time (around 1 second for 200 trials of 100 iterations) while still exploring more than \(|V^*| = 2\) in each iteration.
 
 \begin{table}[ht]
     \centering
@@ -78,7 +69,6 @@ So, while higher neighborhood size leads to higher accuracy, it also takes longe
         \midrule
         2 & 890ms \\
         4 & 1s 138ms \\
-        6 & 1s 443ms \\
         8 & 1s 715ms \\
         \bottomrule
     \end{tabular}
@@ -89,28 +79,19 @@ So, while higher neighborhood size leads to higher accuracy, it also takes longe
 \begin{figure}[ht]
     \centering
     \hfill
-    \begin{subfigure}{0.45\textwidth}
+    \begin{subfigure}{0.32\textwidth}
         \centering
         \includegraphics[width=\textwidth]{../images/p1/added32s.png}
         \caption{\(|V^*| = 2\)}
     \end{subfigure}
     \hfill
-    \begin{subfigure}{0.45\textwidth}
+    \begin{subfigure}{0.32\textwidth}
         \centering
         \includegraphics[width=\textwidth]{../images/p1/added34s.png}
-        \caption{\(|V^*| = 4\)}
+        \caption{\(|V^*| = 4\) (handout)}
     \end{subfigure}
     \hfill
-
-
-    \hfill
-    \begin{subfigure}{0.45\textwidth}
-        \centering
-        \includegraphics[width=\textwidth]{../images/p1/added36s.png}
-        \caption{\(|V^*| = 6\)}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}{0.45\textwidth}
+    \begin{subfigure}{0.32\textwidth}
         \centering
         \includegraphics[width=\textwidth]{../images/p1/added38s.png}
         \caption{\(|V^*| = 8\)}
@@ -137,21 +118,25 @@ Thus, we will pick the added edge to be the attribute stored as it offers a more
 
 \begin{figure}[ht]
     \centering
-    \begin{subfigure}{0.45\textwidth}
+    \hfill
+    \begin{subfigure}{0.32\textwidth}
         \centering
         \includegraphics[width=\textwidth]{../images/p1/added34s.png}
         \caption{Storing added edge}
     \end{subfigure}
-    \begin{subfigure}{0.45\textwidth}
+    \hfill
+    \begin{subfigure}{0.32\textwidth}
         \centering
         \includegraphics[width=\textwidth]{../images/p1/deleted34s.png}
         \caption{Storing deleted edge}
     \end{subfigure}
-    \begin{subfigure}{0.45\textwidth}
+    \hfill
+    \begin{subfigure}{0.32\textwidth}
         \centering
         \includegraphics[width=\textwidth]{../images/p1/both34s.png}
         \caption{Storing both edges}
     \end{subfigure}
+    \hfill
 
     \caption{Effects changing the attribute stored}
     \label{fig:p1-change-attr}

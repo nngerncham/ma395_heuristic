@@ -1,0 +1,75 @@
+\section{Tabu Search on Knapsack}
+
+\subsection{Implementation}
+
+The implementation used can be found in \href{https://github.com/nngerncham/ma395_heuristic/blob/main/homework/hw3/codebase/tabu_search/p5.py}{here} and the Jupyter Notebook used can be found \href{https://github.com/nngerncham/ma395_heuristic/blob/main/homework/hw3/codebase/Notebooks/Problem\%205.ipynb}{here}. The code used for the algorithm itself is copied over from previous problems so it still searching for the minimum and the cost function is multiplied by \(-1\) if the solution is feasible and is 1 if the constraint is broken.
+
+\subsection{Experiment Setup}
+
+In order to use enumeration as the base line for comparison of progression, all possible solutions are generated then shuffled. Then, the cost for each solution is computed in the shuffled order. 
+
+For each trial of TS, \(s_0\) is also randomly generated but it can be infeasible at the start. The solution is stored as a string of bits and the perturbation method used is to flip a single bit. The tabu list and frequency list keeps the index of the flipped bits and the entry is the last iteration that it will be tabu.
+
+The results are from 500 trials where each trial runs 20 iterations of TS and checks the first 20 possible solutions (including infeasible ones) in the shuffled list of all solutions.
+
+\subsection{Results}
+
+By enumerating every possible solution, we can see that the optimal value is 42 and the optimal solution \(S^* = \langle 1, 1, 1, 0, 0, 0, 1, 0 \rangle\).
+
+\begin{figure}[ht]
+    \centering
+    \hfill
+    \begin{subfigure}{0.45\textwidth}
+        \includegraphics[width=\textwidth]{../images/p5/tenure5.png}
+        \caption{\(|T| = 2\)}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.45\textwidth}
+        \includegraphics[width=\textwidth]{../images/p5/tenure50.png}
+        \caption{\(|T| = 50\)}
+    \end{subfigure}
+    \hfill
+
+    \caption{Effects of tenure length on progression}
+    \label{fig:p5-tenure}
+\end{figure}
+
+From Figure \ref{fig:p5-tenure}, we can see that longer tenure length leads to a smoother mean later on for the current cost progression but does not affect the standard deviation much. Neither also guarantees convergence. In the context of this experiment, we will use tenure length of 4 since we are only running this for 20 iterations so having the tenure length be anything greater than that wouldn't really do anything.
+
+\begin{figure}[ht]
+    \centering
+    \hfill
+    \begin{subfigure}{0.45\textwidth}
+        \includegraphics[width=\textwidth]{../images/p5/sd}
+        \caption{Standard deviation}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.45\textwidth}
+        \includegraphics[width=\textwidth]{../images/p5/pi}
+        \caption{Range}
+    \end{subfigure}
+    \hfill
+
+    \caption{Using TS with \(|T|=4\) on this problem}
+    \label{fig:p5-ts}
+\end{figure}
+
+The more interesting results show up in Figure \ref{fig:p5-ts}. From the figure, we can see that TS is able to get so much closer to the exact optimal than using shuffled enumeration within the same number of iterations. We can also see that it is possible for TS to converge within the first 3-5 iterations.
+
+This means that a useful strategy that we can use to solve knapsack with TS (or at least with this instance) is to just run more trials with less iterations. In fact, using this code base on this instance of knapsack, the average number of times we would need to run TS before it gives the optimal solution is less than 2 (\(\approx 1.8\)).
+
+Similarly, if we were to run 10 iterations of the shuffled enumeration and this variant of TS each on this instance of knapsack problem, we would have the results in Table \ref{table:p5}. Note that these results are from 10,000 trials.
+\begin{table}
+    \centering
+    \begin{tabular}{c c c}
+        \toprule
+        Algorithm & Rate of trials that reach optimum & Average running time per trial (s) \\
+        \midrule
+        Shuffled enumeration & 0.0411 & 0.000056 \\
+        Tabu search & 0.5625 & 0.00031 \\
+        \bottomrule
+    \end{tabular}
+    \caption{Results of running 10,000 trials of tabu search and shuffled enumerations for 10 iterations each}
+    \label{table:p5}
+\end{table}
+While it takes significantly less time for the shuffled enumeration to run 10 iterations, the number of times it converges within 10 iterations is too low to say that it is useful. That is, it would take too many trials to repeat this in order to obtain the optimum while tabu search takes longer per trial but will obtain the optimum within just a few trials.
