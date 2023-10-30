@@ -1,0 +1,43 @@
+\section{Emulating the Roulette Wheel Method}
+
+\subsection{Why does it behave like roulette wheel?}
+
+Suppose that we have \(M\) individuals in the current population \(\mathcal{P}\). Abusing notation, we denote \(f_k\) to be the fitness function of the \(k\)-th individual of \(\mathcal{P}\). That is, 
+\[
+    f_k = f(\mathcal{P}[k])
+\]
+We will show that the probability of picking the \(k\)-th individual using the roulette wheel method and the procedure given in the handout are the same.
+
+In the roulette wheel method, we have that
+\[
+    \Pr{\text{Picking \(k\)-th individual}} = \frac{f_k}{\sum_{i=1}^M f_i}
+\]
+Now, we will show that the procedure gives the same probability. Note that we will \textit{skip} the first two steps as they are not directly related to the probability.
+
+In step 3, we generate a random number, say \(x\), where \(x \sim \Unif{0, \sum_i f_i}\). Then, in step 4, we return the first element whose fitness is greater than equals to \(x\). This means, using the procedure, we have that
+\[
+\begin{aligned}
+    \Pr{\text{\(\mathcal{P}[k]\) is picked}}
+        &= \Pr{x \leq f_k} \\
+        &= \Pr{\Unif{0, \sum_i f_i} \leq f_k} \\
+        &= \frac{f_k - 0}{\sum_i f_i - 0} \\
+        &= \frac{f_k}{\sum_i f_i}
+\end{aligned}
+\]
+
+Therefore, we can conclude that the probability that the \(k\)-th individual is going to be picked by the procedure is the same as with the roulette wheel method.
+
+\subsection{If we generated 3371, what happens?}
+
+If we generated 3371, individual 3 will be picked as they are the first individual whose cumulative fitness is greater than 3371.
+
+\subsection{Frequency of Outcomes}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.69\textwidth]{../images/p1/roulette_histogram.png}
+    \caption{Result of using the procedure with \(n=100\)}
+    \label{fig:roulette-outcome}
+\end{figure}
+
+From Figure \ref{fig:roulette-outcome}, we can see that the number of times individual 1, 2, 3, and 4 are picked are around 9, 22, 33, and 36, respectively. This is approximately the same as using the roulette wheel method directly as the percentages were 7.35, 22.76, 33.02, and 36.87, respectively.
