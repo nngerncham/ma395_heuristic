@@ -7,8 +7,6 @@ import scala.util.Random
 import java.io.File
 import com.github.tototoshi.csv._
 
-val REPS = 500
-
 def mutateP2(probMutate: Double)(chromosome: String): String = {
   chromosome.map(bit => {
     val flip = Map('0' -> '1', '1' -> '0')
@@ -36,7 +34,7 @@ def intToBinaryString(x: Int): String = {
 
 def p2Runner(): Unit = {
   val results10Future = (0 until REPS).map(_ => Future {
-    rouletteWheel(
+    rouletteWheelGA(
       initialPopulation = (0 until 6)
         .map(_ => Random.nextInt(64))
         .map(intToBinaryString)
@@ -80,7 +78,7 @@ def p2Runner(): Unit = {
 
   // part 4
   val results250 = Await.result(Future.sequence((0 until REPS).map(_ => Future {
-    rouletteWheel(
+    rouletteWheelGA(
       initialPopulation = (0 until 6)
         .map(_ => Random.nextInt(64))
         .map(intToBinaryString)
@@ -112,7 +110,7 @@ def p2Runner(): Unit = {
 
   Vector(0.03, 0.05, 0.075, 0.1).foreach(prob => {
     val trialResult = Await.result(Future.sequence((0 until REPS).map(_ => Future {
-      rouletteWheel(
+      rouletteWheelGA(
         initialPopulation = initialPopulation,
         populationSize = 6,
         numGeneration = 250,
@@ -142,7 +140,7 @@ def p2Runner(): Unit = {
       .map(intToBinaryString)
       .toVector
     val trialResult = Await.result(Future.sequence((0 until REPS).map(_ => Future {
-      rouletteWheel(
+      rouletteWheelGA(
         initialPopulation = bigInitialPopulation,
         populationSize = numChild,
         numGeneration = 250,

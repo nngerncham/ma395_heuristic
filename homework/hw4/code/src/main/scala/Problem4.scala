@@ -27,7 +27,7 @@ def assignmentDistance(assignment: String): Double = {
     val p2Point = locMap(p2)
     manhattanDistance(p1Point, p2Point)
   })
-  distances.sum
+  1 / distances.sum.toFloat
 }
 
 def p4Runner(): Unit = {

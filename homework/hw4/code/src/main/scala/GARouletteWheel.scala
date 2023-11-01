@@ -6,18 +6,19 @@ def rouletteWheelSelection(cumulativeFitness: Vector[Double]): Int = {
   cumulativeFitness.indexWhere(_ >= randomValue)
 }
 
-def rouletteWheel(initialPopulation: Vector[String],
-                  populationSize: Int,
-                  numGeneration: Int,
-                  numOffspring: Int,
-                  fitnessFunction: String => Double,
-                  crossover: (String, String) => String,
-                  mutate: String => String,
-                  probCrossover: Double = 1.0,
-                 ): GAResults = {
+def rouletteWheelGA(
+                     initialPopulation: Vector[String],
+                     populationSize: Int,
+                     numGeneration: Int,
+                     numOffspring: Int,
+                     fitnessFunction: String => Double,
+                     crossover: (String, String) => String,
+                     mutate: String => String,
+                     probCrossover: Double = 1.0,
+                   ): GAResults = {
   assert(initialPopulation.length == populationSize)
 
-  // Accumulator is population, avgPopFitness, bestPopFitness, populations
+  // Accumulator is population, avgPopFitness, bestPopFitness
   val fitnessPopulation = initialPopulation.map(fitnessFunction)
   val (finalPopulation, avgPopFitness, bestPopFitness) =
     (0 until numGeneration).foldLeft((
