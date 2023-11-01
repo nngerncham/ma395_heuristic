@@ -24,7 +24,7 @@ def tournamentGA(initialPopulation: Vector[String],
       // unpacks accumulator
       val (currentPop, avgPopFitness, bestPopFitness) = acc
 
-      // computes cumulative fitness and apply crossovers
+      // repeating M times, shuffles population, split in half, and select the best from each half
       val crossovers = (0 until numOffspring).map(_ => {
         val (p1Candidates, p2Candidates) = Random.shuffle(currentPop)
           .map(e => (e, fitnessFunction(e)))

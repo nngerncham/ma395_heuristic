@@ -8,6 +8,7 @@ import java.io.File
 import com.github.tototoshi.csv._
 
 def mutateP2(probMutate: Double)(chromosome: String): String = {
+  // flips each bit with probability probMutate
   chromosome.map(bit => {
     val flip = Map('0' -> '1', '1' -> '0')
     if math.random < probMutate then flip(bit) else bit
@@ -27,6 +28,7 @@ def cutcatenate(parent1: String, parent2: String): String = {
 }
 
 def intToBinaryString(x: Int): String = {
+  // just makes sure that the binary string is 6 bits long
   val binary = x.toBinaryString
   val padding = "0" * (6 - binary.length)
   padding + binary

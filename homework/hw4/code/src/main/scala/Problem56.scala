@@ -7,7 +7,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import java.io.File
 import com.github.tototoshi.csv._
 
-val REPS = 200
+val REPS = 1000
+val numGens = 1000
 
 def swap(probMutate: Double)(string: String): String = {
   val (i, j) = (Random.nextInt(string.length), Random.nextInt(string.length))
@@ -23,7 +24,7 @@ def p5Runner(): Unit = {
         rouletteWheelGA(
           initialPopulation = initialPopulation,
           populationSize = 10,
-          numGeneration = 250,
+          numGeneration = numGens,
           numOffspring = 10,
           fitnessFunction = assignmentDistance,
           crossover = crossover,
@@ -46,7 +47,7 @@ def p5Runner(): Unit = {
         tournamentGA(
           initialPopulation = initialPopulation,
           populationSize = 10,
-          numGeneration = 250,
+          numGeneration = numGens,
           numOffspring = 10,
           fitnessFunction = assignmentDistance,
           crossover = partiallyMappedCrossover,
