@@ -16,3 +16,5 @@ libraryDependencies ++= Seq(
   // It depends on LGPL code
   "org.scalanlp" %% "breeze-viz" % "2.1.0"
 )
+
+libraryDependencies += "com.github.tototoshi" %% "scala-csv" % "1.3.10"

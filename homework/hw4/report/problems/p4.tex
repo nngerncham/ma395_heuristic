@@ -2,6 +2,65 @@
 
 \subsection{Cost of assignment}
 
+The cost of \(ceagbhdkfjli\) is \(38\).
+
 \subsection{Weird crossover}
 
-\subsection{Order and Cycle crossover versions}
+We can split both parents by:
+\[
+\begin{aligned}
+    P_1 &= ceagb \mid hdkfjli \\
+    P_2 &= ijlcg \mid akbfdeh
+\end{aligned}
+\]
+Using PMX, we first copy the right substring of \(P_2\) to our solution, say \(P'\). Now, we have 
+\[
+    P' =\ \_\ \_\ \_\ \_\ \_\ akbfdeh
+\]
+Then, we scan the left substring of \(P_1\) and put a gene in \(P'\) as follows.
+\begin{enumerate}
+    \item Check \(c\). \(c\) is not in the partial \(P'\) yet. So, we copy it over and
+        \[
+            P' = c\_\ \_\ \_\ \_\ akbfdeh
+        \]
+    \item Check \(e\). \(e\) is already in partial \(P'\) and its corresponding gene in the right substring of \(P_1\) is \(l\) which is not in partial \(P'\) yet. So, we copy it over and
+        \[
+            P' = cl\_\ \_\ \_\ akbfdeh
+        \]
+    \item Check \(a\). \(a\) is already in partial \(P'\) and its corresponding gene is \(h\). \(h\) is also already in partial \(P'\) and its corresponding gene is \(i\) which is not in partial \(P'\) yet. So, we copy it over and
+        \[
+            P' = cli\_\ \_\ akbfdeh
+        \]
+    \item Check \(g\). \(g\) is not in partial \(P'\) yet. So, we copy it over and
+        \[
+            P' = clig\_\ akbfdeh
+        \]
+    \item Check \(b\). \(b\) is already in partial \(P'\) and its corresponding gene is \(k\). \(k\) is also already in partial \(P'\) and its corresponding gene is \(d\). \(d\) is also already in partial \(P'\) and its corresponding gene is \(j\). \(j\) is not in partial \(P'\) yet so we copy it over and
+        \[
+            P' = cligjakbfdeh
+        \]
+\end{enumerate}
+
+Thus, using PMX, we get the resulting replacement \(cligjakbfdeh\) and it has the cost of \(39\)
+
+\subsection{Order crossover}
+
+We will use the same splits as the previous part. First, we copy over the left substring of \(P_1\) into \(P'\). We now have
+\[
+    P' = ceagb\_\ \_\ \_\ \_\ \_\ \_
+\]
+Then, we scan \(P_2\) and pick the unchosen genes as and obtains
+\[
+    P' = ceagb ijlkfdh
+\]
+
+\subsection{Cycle crossover}
+
+First, we identify the cycle formed.
+\[
+    c \to i \to h \to a \to l \to e \to j \to d \to k \to b \to g \to c
+\]
+Notice that this is pretty much every gene possible. So, we have that
+\[
+    P' = P_1 = ceagbhdkfjli
+\]

@@ -1,13 +1,130 @@
 \section{Maximizing a Function}
 
+The results shown here are from 500 trials. The values are also rounded to the nearest integer due to the limited space.
+
 \subsection{Average fitness}
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{ccccccccccc}
+        \toprule
+        \textbf{Gen} & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 \\
+        \midrule
+        \textbf{Value} & 55580 & 60050 & 62145 & 62837 & 63104 & 63351 & 63480 & 63577 & 63716 & 63846 \\
+        \bottomrule
+    \end{tabular}
+    \caption{Average fitness of each generation}
+\end{table}
+
+We can clearly see that the average fitness of the function is non-decreasing. This is as expected because we are using the greedy method for picking the population. This means that if the offsprings are worse than their parents, then they will not be picked. So, the average will never decrease.
 
 \subsection{Best fitness}
 
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{ccccccccccc}
+        \toprule
+        \textbf{Gen} & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 \\
+        \midrule
+        \textbf{Value} & 62361 & 62704 & 63035 & 63324 & 63523 & 63655 & 63795 & 63809 & 63986 & 64006 \\
+        \bottomrule
+    \end{tabular}
+    \caption{Best fitness in each generation}
+\end{table}
+
+Similarly, the best fitness in each generation is also non-decreasing. Increasing, in fact. This shows that the crossover method (and maybe a bit of mutation) that we are using is working somewhat well. None ever reached the maximum fitness, however.
+
 \subsection{Verifying Max and Min}
+
+First, let us find the first and second derivatives of \(f\).
+\[
+\begin{aligned}
+    f'(x) &= 6x^2 - 480x + 7200 \\
+    f''(x) &= 12x - 480
+\end{aligned}
+\]
+
+Now, set \(f'(x) = 0\) and solve to find the critical points. Then, we will plug the solutions into \(f''\) to see if it is a minima or maxima.
+
+\[
+\begin{aligned}
+    f'(x) &= 0 \\
+    6x^2 - 480x + 7200 &= 0 \\
+    x^2 - 80 + 1200 &= 0 \\
+    (x-60)(x-20) &= 0
+\end{aligned}
+\]
+We obtain solutions \(x=20, 60\).
+
+Observe that
+\[
+\begin{aligned}
+    f''(20) &= 12 \cdot 20 - 480 \\
+            &= 240 - 480 \\
+            &= -240 < 0
+\end{aligned}
+\]
+and
+\[
+\begin{aligned}
+    f''(60) &= 12 \cdot 60 - 480 \\
+            &= 720 - 480 \\
+            &= 240 > 0
+\end{aligned}
+\]
+
+Now, we will check the bounds to see if they reach the max/min value as well. Notice that
+\[
+\begin{aligned}
+    f(0) &= 2000 \\
+    f(20) &= 66000 \\
+    f(60) &= 2000 \\
+    f(63) &= 3134
+\end{aligned}
+\]
+Therefore, we can conclude \(f\) reaches its maximum value at \(x=20\) and its minimum value at \(x=0, 60\).
+
+Since the maximum is at \(x = 20 = 010100_2\) and \(f\) is pretty smooth, the \(x\)'s that are close to 20 will give higher values and will thus survive for longer. Hence, there will be more copies of chromosomes with the schema \([010{{}***{}}]\) because it gives numbers in the range 16-23 which is very close to 20.
+
+Similarly, the \(x\)'s that are close to \(60 = 111100_2\) (and 0) will give lower values and will thus not survive very long. Since the schema \([11{{}****{}}]\) gives number in range 48 to 63 which is somewhat close to 60, it will not survive very long.
+
+At the end of 10 generations, the mean number of chromosomes that matches the schema \([010{{}***{}}]\) and \([11{{}****{}}]\) are 4 and 0 respectively across 1000 trials.
 
 \subsection{Performance Graph}
 
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.6\textwidth]{../images/p2/part4.png}
+    \caption{Performance graph}
+    \label{fig:p4-4}
+\end{figure}
+
+From the performance graph in Figure \ref{fig:p4-4}, we can see that the average population fitness starts off very low but catches up to the best population fitness very quickly. The lines pretty much overlap each other within the first 200 generations. We can also see that GA is able to converge within 1000 generations across all trials.
+
+Interestingly, after 600 generations, we can see that there is a period where the mean of best and average population fitness is already at the optimal but the standard deviation is still not 0. This could have been caused by GA \textit{getting stuck} where every individual in the population are the same. This means that crossover will not generate any new individual and that the only way to introduce new individuals in is only through mutation. Thus, we can \textit{fix} this by increasing the mutation probability.
+
 \subsection{Effects of Mutation Probability}
 
-\subsection{Optional Extras}
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.9\textwidth]{../images/p2/part5.png}
+    \caption{Performance graph with different \(p_\mu\)}
+    \label{fig:p4-5}
+\end{figure}
+
+From Figure \ref{fig:p4-5}, we can see that increasing the mutation probability makes GA converge faster. However, the effects is not so clear past \(0.075\) or \(7.5\%\) chance of mutation. It seems that GA can still get stuck but it gets out of it a lot quicker. With this, we can see that GA is already able to converge within 150 generations with \(p_\mu = 0.075, 0.1\).
+
+\subsection{Optional Extras --- Effects of Population Size}
+
+Let us also have a look at the effects of the population size. So, we will change the population size and consequently change the number of offspring maintained and generated in each generation.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\textwidth]{../images/p2/part6.png}
+    \caption{Performance graph with different \(p_\mu\)}
+    \label{fig:p4-6}
+\end{figure}
+
+From Figure \ref{fig:p4-6}, we can see that having bigger population size also makes GA converge faster on this problem. This could be because we are maintaining and generating a larger pool of individuals in every generation. This means that, in addition to adding mutation probability, we can also increase population size to \textit{solve} the problem of GA getting stuck as well.
+
+Interestingly, having smaller population leads to less standard deviation seen in the fitness as well. This could just be due to the fact that there can't be that much variety in the characteristic of each individual in a generation.

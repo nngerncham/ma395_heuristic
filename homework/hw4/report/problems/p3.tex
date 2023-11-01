@@ -1,3 +1,81 @@
 \section{Conceptual Questions about GA}
 
+\subsection{How many strings in the population does each schema match?}
 
+\begin{itemize}
+    \item \(H_1\) matches 2 strings
+    \item \(H_2\) matches 1 strings
+    \item \(H_3\) matches 2 strings
+\end{itemize}
+
+\subsection{What is the order and defining length of each schema?}
+
+\begin{itemize}
+    \item \(H_1\) has order 2 and defining length 2
+    \item \(H_2\) has order 3 and defining length 2
+    \item \(H_3\) has order 3 and defining length 4
+\end{itemize}
+
+\subsection{How many chromosome does each schemata represent?}
+
+\begin{itemize}
+    \item \(H_1\) represents 16 chromosomes
+    \item \(H_2\) represents 8 chromosomes
+    \item \(H_3\) represents 8 chromosomes
+\end{itemize}
+
+\subsection{What is the average fitness of each schema?}
+
+\begin{itemize}
+    \item For \(H_1\), we have
+        \[
+        \begin{aligned}
+            f(H_1) &= \frac{1}{2}(24528 + 3792) \\
+                   &= \frac{1}{2} \cdot 28320 \\
+                   &= 14160
+        \end{aligned}
+        \]
+    \item For \(H_2\), we have
+        \[
+        \begin{aligned}
+            f(H_2) &= 48818
+        \end{aligned}
+        \]
+    \item For \(H_3\), we have
+        \[
+        \begin{aligned}
+            f(H_3) &= \frac{1}{2}(47968 + 4750) \\
+                   &= \frac{1}{2} \cdot 52728 \\
+                   &= 26364
+        \end{aligned}
+        \]
+\end{itemize}
+
+\subsection{What is the probability of survival and destruction of each schema?}
+
+\begin{itemize}
+    \item For \(H_1\), we have
+        \[
+        \begin{aligned}
+            p_s(H_1) &= 1 - \frac{2}{6} \\
+                     &= \frac{2}{3} \approx 0.66
+        \end{aligned}
+        \]
+        Thus, survival and destruction probability are \(\frac23\) and \(\frac13\), respectively.
+    \item For \(H_2\), we have
+        \[
+        \begin{aligned}
+            p_s(H_2) &= 1 - \frac{2}{6} \\
+                     &= \frac{2}{3} \approx 0.66
+        \end{aligned}
+        \]
+        Thus, survival and destruction probability are \(\frac23\) and \(\frac13\), respectively.
+    \item For \(H_3\), we have
+        \[
+        \begin{aligned}
+            p_s(H_3) &= 1 - \frac{4}{6} \\
+                     &= \frac{1}{3} \approx 0.33
+        \end{aligned}
+        \]
+        Thus, survival and destruction probability are \(\frac13\) and \(\frac23\), respectively.
+\end{itemize}

@@ -10,29 +10,44 @@ def rouletteWheel(initialPopulation: Vector[String],
                   populationSize: Int,
                   numGeneration: Int,
                   numOffspring: Int,
-                  crossover: (String, String) => String,
                   fitnessFunction: String => Double,
-                  mutate: (String, Double) => String,
+                  crossover: (String, String) => String,
+                  mutate: String => String,
                   probCrossover: Double = 1.0,
-                  probMutation: Double = 0.03,
                  ): GAResults = {
-  var population = initialPopulation
-  val fitnessPopulation = population.map(fitnessFunction)
-  val cumulativeFitness = fitnessPopulation.scanLeft(0.0)(_ + _).tail
-  for (i <- 0 until numGeneration) {
-    val crossovers = (0 until numOffspring).map(_ => {
-      val parent1 = population(rouletteWheelSelection(cumulativeFitness))
-      val parent2 = population(rouletteWheelSelection(cumulativeFitness))
-      if math.random < probCrossover then crossover(parent1, parent2) else parent1
+  assert(initialPopulation.length == populationSize)
+
+  // Accumulator is population, avgPopFitness, bestPopFitness, populations
+  val fitnessPopulation = initialPopulation.map(fitnessFunction)
+  val (finalPopulation, avgPopFitness, bestPopFitness) =
+    (0 until numGeneration).foldLeft((
+      initialPopulation,
+      Vector(fitnessPopulation.sum / populationSize.toDouble),
+      Vector(fitnessPopulation.max),
+    ))((acc, _) => {
+      // unpacks accumulator
+      val (currentPop, avgPopFitness, bestPopFitness) = acc
+
+      // computes cumulative fitness and apply crossovers
+      val cumulativeFitness = currentPop.map(fitnessFunction).scanLeft(0.0)(_ + _).tail
+      val crossovers = (0 until numOffspring).map(_ => {
+        val parent1 = currentPop(rouletteWheelSelection(cumulativeFitness))
+        val parent2 = currentPop(rouletteWheelSelection(cumulativeFitness))
+        if math.random < probCrossover then crossover(parent1, parent2) else parent1
+      })
+
+      // mutates the crossovers to generate offsprings
+      val offsprings = crossovers.map(child => mutate(child))
+
+      // generates new population
+      val newPopulation = (currentPop ++ offsprings).sortBy(fitnessFunction).reverse.take(populationSize)
+      val newPopFitness = newPopulation.map(fitnessFunction)
+      (
+        newPopulation,
+        avgPopFitness :+ newPopFitness.sum / populationSize.toDouble,
+        bestPopFitness :+ newPopulation.map(fitnessFunction).max,
+      )
     })
-    val fitnessCrossover = crossovers.map(fitnessFunction)
-    val mutated = crossovers.map(child => {
-      val mutated = mutate(child, probMutation)
-      fitnessFunction(mutated)
-    })
-    population = (population ++ crossovers)
-      .sortWith((a, b) => fitnessFunction(a) > fitnessFunction(b))
-      .take(populationSize)
-  }
-  GAResults(population.head, fitnessFunction(population.head))
+
+  GAResults(finalPopulation, avgPopFitness, bestPopFitness)
 }

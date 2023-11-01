@@ -35,9 +35,16 @@ If we generated 3371, individual 3 will be picked as they are the first individu
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=0.69\textwidth]{../images/p1/roulette_histogram.png}
-    \caption{Result of using the procedure with \(n=100\)}
+    \begin{subfigure}{0.45\textwidth}
+        \includegraphics[width=\textwidth]{../images/p1/roulette_histogram.png}
+        \caption{\(n=100\)}
+    \end{subfigure}
+    \begin{subfigure}{0.45\textwidth}
+        \includegraphics[width=\textwidth]{../images/p1/roulette_histogram2.png}
+        \caption{\(n=100000\)}
+    \end{subfigure}
+    \caption{Results of using the procedure}
     \label{fig:roulette-outcome}
 \end{figure}
 
-From Figure \ref{fig:roulette-outcome}, we can see that the number of times individual 1, 2, 3, and 4 are picked are around 9, 22, 33, and 36, respectively. This is approximately the same as using the roulette wheel method directly as the percentages were 7.35, 22.76, 33.02, and 36.87, respectively.
+From Figure \ref{fig:roulette-outcome}, we can see that the number of times individual 1, 2, 3, and 4 are picked are 9, 20, 26, and 45. Although it is not that close to the probability that we want, this could also be due to the low number of trials since with 100000 trials, the percentages are around 7.5\%, 23\%, 33\%, and 37\%, respectively. This is approximately the same as using the roulette wheel method directly as the percentages were 7.35, 22.76, 33.02, and 36.87, respectively.

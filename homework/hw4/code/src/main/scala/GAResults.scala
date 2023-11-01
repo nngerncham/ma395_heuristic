@@ -1,3 +1,5 @@
 package opt.heu.hw4
 
-case class GAResults(solution: String, fitness: Double)
+case class GAResults(finalPopulation: Vector[String],
+                     avgPopFitness: Vector[Double],
+                     bestPopFitness: Vector[Double])
