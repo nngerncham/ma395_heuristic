@@ -1,1 +1,21 @@
 \section{Using Order and Cycle crossover for PNG Problem}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\textwidth]{../images/p56/p56order.png}
+    \caption{Performance plot for PNG using Order crossover}
+    \label{fig:p5b}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\textwidth]{../images/p56/p56cycle.png}
+    \caption{Performance plot for PNG using Cycle crossover}
+    \label{fig:p5c}
+\end{figure}
+
+In Figures \ref{fig:p5b} and \ref{fig:p5c}, we can see that the shape of their performance plots are very similar, the only difference being the fitness values.
+
+Overall, tournament selection seems to be giving better results than using roulette selection except when used along with order crossover. However, the difference is not much. 
+
+Out of the three crossover methods, we can see that cycle crossover performs the best, especially when it is used with tournament selection, where the mean fitness after 1000 generations is the highest. This could be due to the fact that cycle crossover is the only that \textit{meshes} both parents into the child instead of keeping half the genes from one parent and fill in with the other.

@@ -1,5 +1,12 @@
 \section{Solving the Placements of Nodes in a Graph}
 
-\subsection{Roulette Wheel selection}
+The results shown here are from 1000 trials. Here are the code for \href{https://github.com/nngerncham/ma395_heuristic/blob/main/homework/hw4/code/src/main/scala/GARouletteWheel.scala}{roulette wheel GA}, \href{https://github.com/nngerncham/ma395_heuristic/blob/main/homework/hw4/code/src/main/scala/GATournament.scala}{tournament GA}, and the \href{https://github.com/nngerncham/ma395_heuristic/blob/main/homework/hw4/code/src/main/scala/Crossovers.scala}{crossovers} (link is embedded into the texts). The code is also shared for problem 6.
 
-\subsection{Tournament selection}
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\textwidth]{../images/p56/p56pmx.png}
+    \caption{Performance plot for PNG using PMX}
+    \label{fig:p5a}
+\end{figure}
+
+In Figure \ref{fig:p5a}, we can see that PMX used with Tournament selection performs slightly better since the mean fitness after 1000 generations is slightly better than with roulette selection. However, tournament selection's standard deviation is also higher than with roulette. This is a bit expected. I would have expected the tournament selection's standard deviation to be lower than the roulette since some chromosomes will never be selected as a parent due to its low fitness.

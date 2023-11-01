@@ -20,11 +20,11 @@ def assignmentDistance(assignment: String): Double = {
     (1, 0), (1, 1), (1, 2), (1, 3),
     (0, 0), (0, 1), (0, 2), (0, 3)
   ) // flat vector of locations, basically 'normal' coordinates upside down like in the handout
-  
+
   // converts assignment to map of locations
   val locMap = assignment.zip(locations).toMap
   val edges = edgeStrings.map(s => (s(0), s(1)))
-  
+
   // computes distances of every edge
   val distances = edges.map(edge => {
     val (p1, p2) = edge
@@ -32,8 +32,9 @@ def assignmentDistance(assignment: String): Double = {
     val p2Point = locMap(p2)
     manhattanDistance(p1Point, p2Point)
   })
-  
-  1 / distances.sum.toFloat
+
+  //  distances.sum.toFloat
+  1 / distances.sum.toFloat // had to be changed for P5
 }
 
 def p4Runner(): Unit = {
