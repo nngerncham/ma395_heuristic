@@ -1,0 +1,101 @@
+\section{Shaffer's F2 Problem}
+
+\subsection{Finding the Frontiers}
+
+Let us first compute the objective values of each point:
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{cccccc}
+        \toprule
+        Point & A & B & C & D & E \\
+        \midrule
+        \(f_1, f_2\) & (0.22, 2.35) & (3.01, 0.07) & (0.67, 1.40) & (0.17, 5.83) & (10.31, 1.47) \\
+        \toprule
+        Point & F & G & H & I & J \\
+        \midrule
+        \(f_1, f_2\) & (1.62, 10.71) & (2.27, 12.31) & (3.36, 14.68) & (4.67, 17.31) & (16.85, 37.27) \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+Then, we can construct a similar table as the last problem as follows:
+
+\begin{table}[ht]
+    \centering
+    \caption{Table of points, the points it dominates, and number of points it's dominated by}
+    \begin{tabular}{ccc}
+        \toprule
+        \textbf{Point} & \textbf{Dominates} & \textbf{Dominated Count} \\
+        \midrule
+        A & F, G, H, I, J & 0 \\
+        B & E, H, I, J & 0 \\
+        C & E, F, G, H, I, J & 0 \\
+        D & F, G, H, I, J & 0\\
+        E & J & 2 \\
+        F & G, H, I, J & 3 \\
+        G & H, I, J & 4 \\
+        H & I, J & 5 \\
+        I & I, & 6 \\
+        J & - & 7 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+Thus, we have the following frontiers:
+\[
+\begin{aligned}
+    \mathcal{F}_1 &= \left\{A, B, C, D\right\} \\
+    \mathcal{F}_2 &= \left\{E, F\right\} \\
+    \mathcal{F}_3 &= \left\{G, H\right\} \\
+    \mathcal{F}_4 &= \left\{I, J\right\}
+\end{aligned}
+\]
+
+\newpage
+
+\subsection{Plot of the Fronts}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/p2-pareto_front.png}
+    \caption{The frontiers of Shaffer's F2 Problems}
+\end{figure}
+
+\subsection{Calculating Crowd Distances}
+
+Since every front except for \(\mathcal{F}_1\) has only two points, we can ignore them as the crowding distances of all points would be \(\infty\). Thus, we will only focus on \(\mathcal{F}_1\).
+
+First, let us sort points of \(\mathcal{F}_1\) based on their objective functions.
+\[
+\begin{aligned}
+    f_1 &: [D, A, C, B] \\
+    f_2 &: [B, C, A, D]
+\end{aligned}
+\]
+Notice that
+\[
+\begin{aligned}
+    f_1^{\max} &= 16.85 &\quad& f_1^{\min} &= 0.17 \\
+    f_2^{\max} &= 37.27 &\quad& f_2^{\min} &= 0.07
+\end{aligned}
+\]
+Now, we can compute the crowding distances for each of the points.
+\[
+\begin{aligned}
+    cd(A) &= \left(\frac{f_1(C) - f_1(D)}{f_1^{\max} - f_1^{\min}}\right) + \left(\frac{f_2(D) - f_2(C)}{f_2^{\max} - f_2^{\min}}\right) \\
+          &= \left(\frac{0.67 - 0.17}{16.85 - 0.17}\right) + \left(\frac{5.83 - 1.4}{37.27 - 0.07}\right) \\
+          &\approx 0.149 \\
+    cd(B) &= \infty \\
+    cd(C) &= \left(\frac{f_1(B) - f_1(A)}{f_1^{\max} - f_1^{\min}}\right) + \left(\frac{f_2(A) - f_2(B)}{f_2^{\max} - f_2^{\min}}\right) \\
+          &= \left(\frac{3.01 - 0.22}{16.85 - 0.17}\right) + \left(\frac{2.35 - 0.07}{37.27 - 0.07}\right) \\
+          &\approx 0.229 \\
+    cd(D) &= \infty
+\end{aligned}
+\]
+
+\subsection{Using Tournament Selection}
+
+\begin{enumerate}[label=(\alph*.)]
+    \item \textbf{C vs. G} Between C and G, C would win since it has lower rank. That is, it is a lower frontier.
+    \item \textbf{A vs. C} Between A and C, C would win because while they have the same rank, C has higher crowding distance at 0.229 compared to A's 0.149.
+\end{enumerate}

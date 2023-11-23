@@ -1,15 +1,17 @@
 import dataclasses
 from functools import total_ordering
-from typing import Set, List, Dict, Callable
+from typing import Set, List, Callable, TypeVar
+
+from ordered_set import OrderedSet
 
 
 @total_ordering
 class Individual:
     def __init__(self, v):
-        self.v: List[float] = v  # decision variables
-        self.dominates = set()  # individuals dominated by this individual
+        self.v: List[str] = v  # decision variables
+        self.subordinates = set()  # individuals dominated by this individual
         self.dominated_count = 0  # number of individuals dominating this individual
-        self.crowding_distance = None
+        self.crowding_distance = 0
         self.function_values: List[float] | None = None
         self.rank = None
 
@@ -29,35 +31,37 @@ class Individual:
         return not (self < other)
 
 
-Population = Set[Individual]
-ObjectiveFunction = Callable[[Individual], float]
+IndividualDerived = TypeVar("IndividualDerived", bound=Individual)
+Population = Set[IndividualDerived] | OrderedSet[IndividualDerived]
+ObjectiveFunctionApplier = Callable[[Population], None]
 ReproductionFunction = Callable[[Population], Population]
-CrossOverFunction = Callable[[Individual, Individual], Individual]
 
 
 @dataclasses.dataclass
 class NSGA2Result:
-    population: Set[Individual]
+    populations: List[Population]  # big storage
+    best_individuals: List[Individual]  # best individuals
 
 
-def dominates(fs: List[ObjectiveFunction], individual1: Individual, individual2: Individual):
+def dominates(individual1: Individual, individual2: Individual):
     # i1 dominates i2 means f(i1) <= f(i2)
-    for f in fs:
-        if f(individual1) > f(individual2):
+    m = len(individual1.function_values)
+    for i in range(m):
+        if individual1.function_values[i] > individual2.function_values[i]:
             return False
     return True
 
 
-def fast_non_dominated_sort(fs: List[ObjectiveFunction], population: Population):
-    frontiers: Dict[int, Population] = {}  # not the most efficient way to store frontiers but whatever
+def fast_non_dominated_sort(population: Population):
+    frontiers: List[Set[Individual]] = [set()]
     for individual in population:
-        individual.dominates = set()
+        individual.subordinates = set()
         individual.dominated_count = 0
 
         for other_individual in population:
-            if dominates(fs, individual, other_individual):
-                individual.dominates.add(other_individual)
-            elif dominates(fs, other_individual, individual):
+            if dominates(individual, other_individual):
+                individual.subordinates.add(other_individual)
+            elif dominates(other_individual, individual):
                 individual.dominated_count += 1
 
         if individual.dominated_count == 0:
@@ -65,62 +69,67 @@ def fast_non_dominated_sort(fs: List[ObjectiveFunction], population: Population)
             frontiers[0].add(individual)
 
     i = 0
-    while frontiers[i]:
+    current_frontier = frontiers[0]
+    while len(current_frontier) > 0:
         next_frontier = set()
-        for individual in frontiers[i]:
-            for other_individual in individual.dominates:
+        for individual in current_frontier:
+            for other_individual in individual.subordinates:
                 other_individual.dominated_count -= 1
                 if other_individual.dominated_count == 0:
                     other_individual.rank = i + 1
                     next_frontier.add(other_individual)
-        frontiers[i] = next_frontier
+        frontiers.append(next_frontier)
+        current_frontier = next_frontier
         i += 1
 
     return frontiers
 
 
-def crowding_distance_assignment(fs: List[ObjectiveFunction], individuals: Population):
-    for individual in individuals:
-        individual.crowding_distance = 0
+def crowding_distance_assignment(individuals: Population, m_size: int):
+    for m in range(m_size):
+        sorted_inds = sorted(individuals, key=lambda ind: ind.function_values[m])
+        sorted_inds[0].crowding_distance = float('inf')
+        sorted_inds[-1].crowding_distance = float('inf')
+        fm_max = sorted_inds[-1].function_values[m]
+        fm_min = sorted_inds[0].function_values[m]
 
-    for m in range(len(fs)):
-        # sort individuals by f
-        f = fs[m]
-        sorted_individuals = sorted(individuals, key=f)
-        sorted_individuals[0].crowding_distance = float('inf')
-        sorted_individuals[-1].crowding_distance = float('inf')
-        fm_max = sorted_individuals[-1].function_values[m]
-        fm_min = sorted_individuals[0].function_values[m]
-        for i in range(1, len(sorted_individuals) - 1):
-            sorted_individuals[i].crowding_distance += (
-                    (f(sorted_individuals[i + 1]) - f(sorted_individuals[i - 1])) / (fm_max - fm_min)
-            )
+        for i in range(1, len(sorted_inds) - 1):
+            nbr_diff = sorted_inds[i + 1].function_values[m] - sorted_inds[i - 1].function_values[m]
+            f_diff = fm_max - fm_min + 1e-6
+            sorted_inds[i].crowding_distance += nbr_diff / f_diff
 
 
-def crowded_comparison(individual1: Individual, individual2: Individual):
-    if individual1.rank < individual2.rank:
-        return True
-    elif individual1.rank == individual2.rank:
-        return individual1.crowding_distance > individual2.crowding_distance
-    return False
-
-
-def nsga2(fs: List[ObjectiveFunction], pop0: Population, make_new_population: ReproductionFunction,
+def nsga2(compute_obj: ObjectiveFunctionApplier, pop0: Population, make_new_population: ReproductionFunction, nf: int,
           max_generations: int = 500) -> NSGA2Result:
-    population = pop0.copy()
+    population: OrderedSet = OrderedSet(pop0.copy())
+
+    populations = [population]
+    best_pops: List[Individual] = [population[0]]
+
     n = len(population)
-    for _ in range(max_generations):
+    for iters in range(max_generations):
+        if len(population) < n:  # too many dupes
+            print(iters)
+            return NSGA2Result(populations, best_pops)
+
         offsprings = make_new_population(population)
-        population = population.union(offsprings)  # R_t
-        frontiers = fast_non_dominated_sort(fs, population)
+        total_candidates = population.union(offsprings)  # R_t
+        compute_obj(total_candidates)
+        frontiers = fast_non_dominated_sort(total_candidates)
 
         next_population = set()
         i = 0
-        while len(next_population) + len(frontiers[i]) <= len(population):
-            crowding_distance_assignment(fs, frontiers[i])
+        while len(next_population) + len(frontiers[i]) <= n:
+            if len(frontiers[i]) <= 0:
+                break
+            crowding_distance_assignment(frontiers[i], nf)
             next_population = next_population.union(frontiers[i])
             i += 1
-
         sorted_frontier = sorted(frontiers[i])
-        next_population.union(sorted_frontier[:n - len(next_population)])
-    return NSGA2Result(population)
+        next_population = next_population.union(sorted_frontier)
+        population = OrderedSet(next_population)[:n]
+
+        populations.append(population)
+        best_pops.append(population[0])
+
+    return NSGA2Result(populations, best_pops)

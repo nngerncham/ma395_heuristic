@@ -1,10 +1,12 @@
 \section{Hand Calculation 1}
 
 \subsection{Non-dominated Fronts}
+
 First, let us identify the domination of each point. Namely, for each point \(p\), we will find all points that are dominated by \(p\) and the number of points that dominates \(p\).
 
 \begin{table}[ht]
     \centering
+    \caption{Table of points, the points it dominates, and number of points it's dominated by}
     \begin{tabular}{ccc}
         \toprule
         \textbf{Point} & \textbf{Dominates} & \textbf{Dominated Count} \\
@@ -43,22 +45,20 @@ First, observe that
     f^{\min}_2 &= 0.2 &\quad& f^{\max}_2 &= 9.3
 \end{aligned}
 \]
-Then, when we sort the points according to each objective function, we have the following order:
+Then, when we sort the points in \(\mathcal{F}_1\) according to each objective function, we have the following order:
 \[
 \begin{aligned}
-    f_1 &: [B, F, A, C, D, J, E, H, G, I] \\
-    f_2 &: [F, E, I, D, A, H, B, J, C, G]
+    f_1 &: [F, E, I] \\
+    f_2 &: [F, E, I]
 \end{aligned}
 \]
 Finally, we can compute the crowding distance as follows.
 \[
 \begin{aligned}
-    cd(E) &= \left(\frac{f_1(H) - f_1(J)}{9.2-1}\right) + \left(\frac{f_2(I) - f_2(F)}{9.3 - 0.2}\right) \\
-          &= \frac{4.7 - 2.7}{8.2} + \frac{4.5 - 0.2}{9.1} \\
-          &\approx 0.71643 \\
-    cd(F) &= \left(\frac{f_1(A) - f_1(B)}{9.2 - 1}\right) + \infty \\
-          &= \infty \\
-    cd(I) &= \infty + \left(\frac{f_2(D) - f_2(E)}{9.3-0.2}\right) \\
-          &= \infty
+    cd(F) &= \infty \\
+    cd(E) &= \left(\frac{f_1(I) - f_1(F)}{f_1^{\max} - f_1^{\min}}\right) + \left(\frac{f_2(I) - f_2(F)}{f_2^{\max} - f_2^{\min}}\right) \\
+          &= \left(\frac{9.2 - 1.5}{9.2 - 1.0}\right) + \left(\frac{4.5 - 0.2}{9.3 - 0.2}\right) \\
+          &\approx 1.412 \\
+    cd(I) &= \infty \\
 \end{aligned}
 \]
