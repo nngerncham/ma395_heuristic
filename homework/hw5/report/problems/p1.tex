@@ -1,0 +1,64 @@
+\section{Hand Calculation 1}
+
+\subsection{Non-dominated Fronts}
+First, let us identify the domination of each point. Namely, for each point \(p\), we will find all points that are dominated by \(p\) and the number of points that dominates \(p\).
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{ccc}
+        \toprule
+        \textbf{Point} & \textbf{Dominates} & \textbf{Dominated Count} \\
+        \midrule
+        A & B, C & 3 \\
+        B & - & 6 \\
+        C & - & 6 \\
+        D & A, B, C & 2\\
+        E & A, B, C, D, J & 0 \\
+        F & B & 0 \\
+        G & - & 1 \\
+        H & B, C, J & 1 \\
+        I & A, B, C, D, G, H, J & 0 \\
+        J & C & 3 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+
+We have the following frontiers:
+\[
+\begin{aligned}
+    \mathcal{F}_1 &= \left\{E, F, I\right\} \\
+    \mathcal{F}_2 &= \left\{D, G, H\right\} \\
+    \mathcal{F}_3 &= \left\{A, J\right\} \\
+    \mathcal{F}_4 &= \left\{B, C\right\} \\
+\end{aligned}
+\]
+
+\subsection{Crowding Distance of \(\mathcal{F}_1\)}
+
+First, observe that
+\[
+\begin{aligned}
+    f^{\min}_1 &= 1 &\quad& f^{\max}_1 &= 9.2 \\
+    f^{\min}_2 &= 0.2 &\quad& f^{\max}_2 &= 9.3
+\end{aligned}
+\]
+Then, when we sort the points according to each objective function, we have the following order:
+\[
+\begin{aligned}
+    f_1 &: [B, F, A, C, D, J, E, H, G, I] \\
+    f_2 &: [F, E, I, D, A, H, B, J, C, G]
+\end{aligned}
+\]
+Finally, we can compute the crowding distance as follows.
+\[
+\begin{aligned}
+    cd(E) &= \left(\frac{f_1(H) - f_1(J)}{9.2-1}\right) + \left(\frac{f_2(I) - f_2(F)}{9.3 - 0.2}\right) \\
+          &= \frac{4.7 - 2.7}{8.2} + \frac{4.5 - 0.2}{9.1} \\
+          &\approx 0.71643 \\
+    cd(F) &= \left(\frac{f_1(A) - f_1(B)}{9.2 - 1}\right) + \infty \\
+          &= \infty \\
+    cd(I) &= \infty + \left(\frac{f_2(D) - f_2(E)}{9.3-0.2}\right) \\
+          &= \infty
+\end{aligned}
+\]
