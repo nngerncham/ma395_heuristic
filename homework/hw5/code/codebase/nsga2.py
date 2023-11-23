@@ -45,6 +45,8 @@ class NSGA2Result:
 
 def dominates(individual1: Individual, individual2: Individual):
     # i1 dominates i2 means f(i1) <= f(i2)
+    if individual1 == individual2:
+        return False
     m = len(individual1.function_values)
     for i in range(m):
         if individual1.function_values[i] > individual2.function_values[i]:
@@ -82,7 +84,12 @@ def fast_non_dominated_sort(population: Population):
         current_frontier = next_frontier
         i += 1
 
-    return frontiers
+    return frontiers[:-1]
+
+
+def crowding_distance_assignment_frontier(frontiers: List[Population], m_size: int):
+    for frontier in frontiers:
+        crowding_distance_assignment(frontier, m_size)
 
 
 def crowding_distance_assignment(individuals: Population, m_size: int):
