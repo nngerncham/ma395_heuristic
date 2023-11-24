@@ -8,7 +8,7 @@ from ordered_set import OrderedSet
 @total_ordering
 class Individual:
     def __init__(self, v):
-        self.v: List[str] = v  # decision variables
+        self.v: List[str | float] = v  # decision variables
         self.subordinates = set()  # individuals dominated by this individual
         self.dominated_count = 0  # number of individuals dominating this individual
         self.crowding_distance = 0

@@ -2,4 +2,85 @@
 
 \subsection{Subroutines in NSGA-II}
 
-The implementations can be found in \href{https://github.com/nngerncham/ma395_heuristic/blob/main/homework/hw5/code/code/nsga2.py}{here}.
+The implementations can be found in \href{https://github.com/nngerncham/ma395_heuristic/blob/main/homework/hw5/code/code/nsga2.py}{here}. Running this against my hand calculations, I found a few (human) errors in my previous problems and went back to fix it and also fixed my code so I basically needed to fix everything.
+
+One thing I observed that I want to point out is that, because I implemented NSGA-II such that \(p \prec q\) means that \(f_i(p) \leq f_i(q)\) for all \(i = 1, 2, ..., m\) assuming that there are \(m\) objective functions, the actual crowding distance is different but the ordering is the same. That is, the actual value of crowding distance is different but the choice of which individual to pick is the same. Other than that, the frontiers are the same after I fixed everything.
+
+\subsection{Solving P2 Again}
+
+\begin{figure}[ht]
+    \centering
+    \hfill
+    \begin{subfigure}{0.48\textwidth}
+        \includegraphics[width=\textwidth]{images/p3-first_last_frontiers.png}
+        \caption{First front of the first and last generation}
+        \label{fig:first-last}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.48\textwidth}
+        \includegraphics[width=\textwidth]{images/p3-first_five_generations.png}
+        \caption{Points in different generations}
+    \end{subfigure}
+    \hfill
+    \caption{Non-dominated fronts}
+\end{figure}
+
+From Figure \ref{fig:first-last}, we can that the points in the first frontier has improved significantly. In the first generation, only 2 of the 10 individuals are in the first front. In contrast, all points of the last generation are in the first front which means that every single point is on the pareto front after the NSGA-II terminates.
+
+\subsection{Weighted Sum Objective Variant}
+
+\begin{figure}[ht]
+    \centering
+    \hfill
+    \begin{subfigure}{0.48\textwidth}
+        \includegraphics[width=\textwidth]{images/p3-weighted_fronts.png}
+        \caption{First fronts of first and last generation}
+        \label{fig:weighted-sum-front}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.48\textwidth}
+        \includegraphics[width=\textwidth]{images/p3-weighted_generations.png}
+        \caption{\(f_1, f_2\) of the first 5 generations}
+        \label{fig:weighted-sum-generation}
+    \end{subfigure}
+    \hfill
+    \caption{Non-dominated fronts using the weighted sum objective functions with weight \([0.5, 0.5]\)}
+\end{figure}
+
+In Figure \ref{fig:weighted-sum-generation}, we can see that using the weighted sum method with equal sum is not that different from the normal version when considering every point in a generation. In contrast, there is only a single point in the first front of the first and the last generations as can be seen in Figure \ref{fig:weighted-sum-front}.
+
+\subsubsection*{Effects of Weight}
+
+\begin{figure}[ht]
+    \centering
+
+    \begin{subfigure}{0.32\textwidth}
+        \includegraphics[width=\textwidth]{images/p3-w00_10.png}
+        \caption{\(w = [0, 1]\)}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.32\textwidth}
+        \includegraphics[width=\textwidth]{images/p3-w05_05.png}
+        \caption{\(w = [0.5, 0.5]\)}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.32\textwidth}
+        \includegraphics[width=\textwidth]{images/p3-w10_00.png}
+        \caption{\(w = [1, 0]\)}
+    \end{subfigure}
+
+    \begin{subfigure}{0.32\textwidth}
+        \includegraphics[width=\textwidth]{images/p3-w02_08.png}
+        \caption{\(w = [0.2, 0.8]\)}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.32\textwidth}
+        \includegraphics[width=\textwidth]{images/p3-w08_02.png}
+        \caption{\(w = [0.8, 0.2]\)}
+    \end{subfigure}
+
+    \caption{First fronts of Multi-Objective and Weighted Sum variant using different weights}
+    \label{fig:diff-weight}
+\end{figure}
+
+In Figure \ref{fig:diff-weight}, we can see that different weights \(w\) will change the position of the points in the first front. Namely, the points in the first frontier are still on the Pareto front but they are higher in the direction of the objective function that has lower weight. This is because if an objective function has lower weight, then its increase has lower impact in the overall objective/fitness value we are pretty much optimizing for the objective function that has higher value.
