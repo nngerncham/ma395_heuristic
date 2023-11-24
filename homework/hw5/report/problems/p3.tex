@@ -2,7 +2,7 @@
 
 \subsection{Subroutines in NSGA-II}
 
-The implementations can be found in \href{https://github.com/nngerncham/ma395_heuristic/blob/main/homework/hw5/code/code/nsga2.py}{here}. Running this against my hand calculations, I found a few (human) errors in my previous problems and went back to fix it and also fixed my code so I basically needed to fix everything.
+The implementations can be found in \href{https://github.com/nngerncham/ma395_heuristic/blob/main/homework/hw5/code/codebase/nsga2.py}{here}. Running this against my hand calculations, I found a few (human) errors in my previous problems and went back to fix it and also fixed my code so I basically needed to fix everything.
 
 One thing I observed that I want to point out is that, because I implemented NSGA-II such that \(p \prec q\) means that \(f_i(p) \leq f_i(q)\) for all \(i = 1, 2, ..., m\) assuming that there are \(m\) objective functions, the actual crowding distance is different but the ordering is the same. That is, the actual value of crowding distance is different but the choice of which individual to pick is the same. Other than that, the frontiers are the same after I fixed everything.
 
