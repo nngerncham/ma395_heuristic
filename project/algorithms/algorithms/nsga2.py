@@ -8,7 +8,7 @@ from ordered_set import OrderedSet
 @total_ordering
 class Individual:
     def __init__(self, v):
-        self.v: List[str] = v  # decision variables
+        self.v: List[str | float] = v  # decision variables
         self.subordinates = set()  # individuals dominated by this individual
         self.dominated_count = 0  # number of individuals dominating this individual
         self.crowding_distance = 0
@@ -39,12 +39,14 @@ ReproductionFunction = Callable[[Population], Population]
 
 @dataclasses.dataclass
 class NSGA2Result:
-    populations: List[Population]  # big storage
+    populations: List[Population]  # first frontiers
     best_individuals: List[Individual]  # best individuals
 
 
 def dominates(individual1: Individual, individual2: Individual):
     # i1 dominates i2 means f(i1) <= f(i2)
+    if individual1 == individual2:
+        return False
     m = len(individual1.function_values)
     for i in range(m):
         if individual1.function_values[i] > individual2.function_values[i]:
@@ -82,7 +84,12 @@ def fast_non_dominated_sort(population: Population):
         current_frontier = next_frontier
         i += 1
 
-    return frontiers
+    return frontiers[:-1]
+
+
+def crowding_distance_assignment_frontier(frontiers: List[Population], m_size: int):
+    for frontier in frontiers:
+        crowding_distance_assignment(frontier, m_size)
 
 
 def crowding_distance_assignment(individuals: Population, m_size: int):
@@ -99,7 +106,10 @@ def crowding_distance_assignment(individuals: Population, m_size: int):
             sorted_inds[i].crowding_distance += nbr_diff / f_diff
 
 
-def nsga2(compute_obj: ObjectiveFunctionApplier, pop0: Population, make_new_population: ReproductionFunction, nf: int,
+def nsga2(compute_obj: ObjectiveFunctionApplier,
+          pop0: Population,
+          make_new_population: ReproductionFunction,
+          nf: int,
           max_generations: int = 500) -> NSGA2Result:
     population: OrderedSet = OrderedSet(pop0.copy())
 
@@ -129,7 +139,7 @@ def nsga2(compute_obj: ObjectiveFunctionApplier, pop0: Population, make_new_popu
         next_population = next_population.union(sorted_frontier)
         population = OrderedSet(next_population)[:n]
 
-        populations.append(population)
+        populations.append(fast_non_dominated_sort(population)[0])
         best_pops.append(population[0])
 
     return NSGA2Result(populations, best_pops)

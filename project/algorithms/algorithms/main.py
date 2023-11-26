@@ -1,7 +1,7 @@
 import os
 from os import getpid
 from time import time_ns
-from typing import Any, Set, List
+from typing import Any, List, Callable, Tuple
 
 import diskannpy
 import numpy as np
@@ -11,6 +11,7 @@ import nsga2
 import utils
 
 NUM_THREADS = 24
+P_MU = 0.05
 
 
 class BuildParams(nsga2.Individual):
@@ -47,16 +48,18 @@ class BuildParams(nsga2.Individual):
         return hash(tuple(self.v))
 
     def __repr__(self):
-        return f"""
-        max_degree: {self.max_degree()}
-        size_construction: {self.size_construction()}
-        size_search: {self.size_search()}
-        alpha: {self.alpha()}
-        """
+        # return f"""
+        # max_degree: {self.max_degree()}
+        # size_construction: {self.size_construction()}
+        # size_search: {self.size_search()}
+        # alpha: {self.alpha()}
+        # """
+        return str(self.v)
 
     def __str__(self):
         return (f"{self.max_degree()},{self.size_construction()},{self.size_search()},{self.alpha()},"
-                f"{self.function_values[0]},{self.function_values[1]},{self.function_values[2]},{1 / self.function_values[3] - 1e-6}\n")
+                f"{self.function_values[0]},{self.function_values[1]},{self.function_values[2]},"
+                f"{1 / self.function_values[3] - 1e-6 if self.function_values[3] != 0 else 1 / 1e-6 - 1e-6}\n")
 
 
 def moo_factory(data_set: np.ndarray[np.ndarray[Any]],
@@ -101,48 +104,92 @@ def moo_factory(data_set: np.ndarray[np.ndarray[Any]],
     return apply_function
 
 
-def cut_concat(individual1: BuildParams, individual2: BuildParams):
+def single_cutcatenate(individual1: BuildParams, individual2: BuildParams):
     # mutation is built into this function
     new_v: List[str] = ["", "", "", ""]
+    flip = {'0': '1', '1': '0'}
     for i in range(4):
         cut_point = np.random.randint(10)
         new_v[i] = individual1.v[i][:cut_point] + individual2.v[i][cut_point:]
-        flip = {'0': '1', '1': '0'}
         for j in range(len(new_v[i])):
-            if np.random.rand() < 0.05:
+            if np.random.rand() < P_MU:
                 new_v[i] = new_v[i][:j] + flip[new_v[i][j]] + new_v[i][j + 1:]
         if utils.bin_to_int(new_v[i]) <= 0:
             new_v[i] = utils.int_to_bin(1)
     return BuildParams(new_v)
 
 
-def choice_from_set(population: Set):
-    return np.random.choice(list(population))
+def multi_cutcatenate(individual1: BuildParams, individual2: BuildParams):
+    # mutation is built into this function
+    new_v: List[str] = ["", "", "", ""]
+    flip = {'0': '1', '1': '0'}
+    for i in range(4):
+        num_cut_points = np.random.randint(1, 4)  # 1 <= num_cut_points <= 3
+        cut_points = [0]
+        cut_points.extend(sorted(np.random.randint(10, size=num_cut_points)))
+        cut_points.append(10)
+        inds = [individual1, individual2]
+        sections = [inds[j % 2].v[i][cut_points[j - 1]:cut_points[j]] for j in range(1, len(cut_points))]
+        new_v[i] = "".join(sections)
+
+        # mutation
+        for j in range(len(new_v[i])):
+            if np.random.rand() < P_MU:
+                new_v[i] = new_v[i][:j] + flip[new_v[i][j]] + new_v[i][j + 1:]
+        if utils.bin_to_int(new_v[i]) <= 0:
+            new_v[i] = utils.int_to_bin(1)
+    return BuildParams(new_v)
 
 
-def cut_concat_new_pop(population: nsga2.Population):
-    n = len(population)
-    new_pop = set()
-    while len(new_pop) < n:
-        ind1 = choice_from_set(population)
-        ind2 = choice_from_set(population)
-        new_pop.add(cut_concat(ind1, ind2))
+def uniform_random_selection(population: nsga2.Population) -> (BuildParams, BuildParams):
+    return np.random.choice(list(population), size=2)
+
+
+def tournament_selection(population: nsga2.Population) -> (BuildParams, BuildParams):
+    frontiers = nsga2.fast_non_dominated_sort(population.copy())
+    pop_copy = []
+    for front in frontiers:
+        if len(pop_copy) >= 4:
+            break
+        pop_copy.extend(front)
+    np.random.shuffle(pop_copy)
+
+    mid_point = len(pop_copy) // 2
+    match1 = pop_copy[:mid_point]
+    match2 = pop_copy[mid_point:]
+
+    return min(match1), min(match2)
+
+
+def make_new_pop_factory(crossover: Callable[[BuildParams, BuildParams], BuildParams],
+                         select: Callable[[nsga2.Population], Tuple[BuildParams, BuildParams]]) \
+        -> Callable[[nsga2.Population], nsga2.Population]:
+    def new_pop(population: nsga2.Population):
+        n = len(population)
+        next_pop = set()
+        while len(next_pop) < n:
+            ind1, ind2 = select(population)
+            next_pop.add(crossover(ind1, ind2))
+
+        return next_pop
 
     return new_pop
 
 
-def randomize_individual():
-    v = [utils.int_to_bin(np.random.randint(1, 1024)),
-         utils.int_to_bin(np.random.randint(924)),
-         utils.int_to_bin(np.random.randint(924)),
-         utils.int_to_bin(np.random.randint(1, 1024))]
-    return BuildParams(v)
-
-
 def generate_p0(n: int):
+    def randomize_individual():
+        v = [utils.int_to_bin(np.random.randint(1, 1024)),
+             utils.int_to_bin(np.random.randint(924)),
+             utils.int_to_bin(np.random.randint(924)),
+             utils.int_to_bin(np.random.randint(1, 1024))]
+        return BuildParams(v)
+
     vs = set()
     while len(vs) < n:
         vs.add(randomize_individual())
+
+    nsga2.fast_non_dominated_sort(vs)
+    nsga2.crowding_distance_assignment(vs, 4)
     return vs
 
 
@@ -156,10 +203,19 @@ if __name__ == '__main__':
         100, np.int32)
     data_apply_function = moo_factory(data, query, gt)
 
-    p0 = generate_p0(10)
-    nsga2_result = nsga2.nsga2(data_apply_function, p0, cut_concat_new_pop, 4, 10)
-    with open("../result-small.csv", "w") as f:
-        f.write("generation,max_deg,size_construction,size_search,alpha,build_time,memory,search_time,recall\n")
-        for gen_iter, generation in enumerate(nsga2_result.populations):
-            for individual in generation:
-                f.write(f"{gen_iter}," + str(individual))
+    crossover_methods = {
+        "single-cutcat-unif": make_new_pop_factory(single_cutcatenate, uniform_random_selection),
+        "multi-cutcat-unif": make_new_pop_factory(multi_cutcatenate, uniform_random_selection),
+        "single-cutcat-tour": make_new_pop_factory(single_cutcatenate, tournament_selection),
+        "multi-cutcat-tour": make_new_pop_factory(multi_cutcatenate, tournament_selection)
+    }
+    for method_key in crossover_methods.keys():
+        p0 = generate_p0(20)
+        nsga2_result = nsga2.nsga2(data_apply_function, p0, crossover_methods[method_key], 4, 100)
+        with open("../result.csv", "w") as f:
+            f.write(
+                "generation,method,max_deg,size_construction,size_search,alpha,build_time,memory,search_time,recall\n")
+            for gen_iter, generation in enumerate(nsga2_result.populations):
+                for individual in generation:
+                    entry = f"{gen_iter},{method_key}," + str(individual)
+                    f.write(entry)
