@@ -3,7 +3,7 @@ title: Milestone 3 Progress Update
 author: Nawat Ngerncham (6380496)
 ---
 
-Note: The new content starts from [here](./milestone3.md#updates-for-m3).
+Note: The new content starts from [here](#updates-for-m3).
 
 # Fixing the Problem Statement
 
@@ -143,6 +143,12 @@ Finally, let us have a look at the (rotated) 3D plot of the three objective func
 
 ![3D plot of all points (blue), top 10 points (orange), and perfect point (red)](algorithms/images/3d-top10.png)
 
+[This diagram was rotated because at the previous angle, it doesn't show the orange points (best points). The test results are not here anymore so I can't go back and change the other one.]
+
+---
+
+\newpage
+
 # Updates for M3
 
 ## Implementation
@@ -157,9 +163,9 @@ $$
 \bar{f_i} = \frac{f_i - \hat{z}_i^*}{\bar{z}_i^{nad} - \hat{z}_i^*}
 $$
 
-where $\hat{z}_i^*$ is the $i$-th component of the estimated ideal point (minimum value) and $\hat{z}_i^{nad}$ is the $i$-th component of the estimated _nadir point_ (max point). In the paper, the author also described multiple methods of estimating the ideal and nadir points. However, since this is a rather small project, the estimation that I will use will be the _best_-found-so-far. That is, $\hat{z}_i^*$ will be the lowest $f_i$ found so far and $\hat{z}_i^{nad}$ will be the largest value for $f_i$ found so far.
+where $\hat{z}_i^*$ is the $i$-th component of the estimated ideal point (minimum value) and $\hat{z}_i^{nad}$ is the $i$-th component of the estimated _nadir point_ (max point). In the paper, the authors also described multiple methods of estimating the ideal and nadir points. However, since this is a rather small project, the estimation that I will use will be the _best_-found-so-far. That is, $\hat{z}_i^*$ will be the lowest $f_i$ found so far and $\hat{z}_i^{nad}$ will be the largest value for $f_i$ found so far.
 
-This would make it so that the objective value of any population will be in range $[0, 1]$. This would also make solving this problem with the weighted sum of the objective functions easier because each objective functions would have equal contributions to the weighted sum if given equal weight. Additionally, since recall is already also in range $[0, 1]$, I think that changing the objective function to be as follows is fair:
+This would make it so that the objective value of any population will be in range $[0, 1]$. This would also make solving this problem with the weighted sum of the objective functions easier because each objective functions would have equal contributions to the weighted sum if given equal weight. Additionally, since $f_r$ (recall) is already also in range $[0, 1]$, I will change the objective function to be as follows:
 
 Let $f_i^{nad}$ and $f_i^*$ represent the component of the nadir point and ideal point that corresponds to the objective function $i$, respectively. Then, the updated (again) model of this problem is:
 
@@ -180,4 +186,12 @@ $$
 f : BP \to [0, 1] \times [0, 1] \times [0, 1]
 $$
 
-This would be useful for BO later on.
+This would be useful for BO later on since every component (or sub-objective function?) starts off at the same weight.
+
+## More Results (without Normalization yet)
+
+I'm still figuring out how to implement normalization into my current implementation of NSGA-II so the results shown here are only for the different crossover and parent selection methods compared to each other.
+
+![Scatter plot of the points and each method](algorithms/images/m3/all-methods1.png) ![Scatter plot of the points and each method](algorithms/images/m3/all-methods2.png)
+
+As can be seen in Figure 3 and 4, there is no one combination of crossover and selection method that is clearly better than the rest. Essentially, which combination appears most front depends on which angle you look at it from. Still, any of combination seems to work well at least on this problem. However, we can observe that the single-point cut-catenate with uniformly random selection (blue points) seems to be the worst combination since it has points that are very far away from the _perfect point_ (purple point).

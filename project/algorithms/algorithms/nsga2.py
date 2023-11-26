@@ -33,7 +33,7 @@ class Individual:
 
 IndividualDerived = TypeVar("IndividualDerived", bound=Individual)
 Population = Set[IndividualDerived] | OrderedSet[IndividualDerived]
-ObjectiveFunctionApplier = Callable[[Population], None]
+ObjectiveFunctionApplier = Callable[[Population, ], None]
 ReproductionFunction = Callable[[Population], Population]
 
 
@@ -119,7 +119,6 @@ def nsga2(compute_obj: ObjectiveFunctionApplier,
     n = len(population)
     for iters in range(max_generations):
         if len(population) < n:  # too many dupes
-            print(iters)
             return NSGA2Result(populations, best_pops)
 
         offsprings = make_new_population(population)

@@ -1,3 +1,4 @@
+import dataclasses
 import os
 from os import getpid
 from time import time_ns
@@ -62,11 +63,21 @@ class BuildParams(nsga2.Individual):
                 f"{1 / self.function_values[3] - 1e-6 if self.function_values[3] != 0 else 1 / 1e-6 - 1e-6}\n")
 
 
+@dataclasses.dataclass
+class Scaler:
+    build_min: float | None
+    build_max: float | None
+    query_min: float | None
+    query_max: float | None
+
+
 def moo_factory(data_set: np.ndarray[np.ndarray[Any]],
                 queries: np.ndarray[np.ndarray[Any]],
                 gts: np.ndarray[np.ndarray[Any]]):
+    scaler = Scaler(float('inf'), -float('inf'), float('inf'), -float('inf'))
+
     def apply_function(bps: nsga2.Population):  # modifies the bp object in-place
-        idx_path = "../index/"
+        idx_path = "../index2/"
         for bp in bps:
             os.system("rm -rf " + idx_path + "*")
 
@@ -209,12 +220,13 @@ if __name__ == '__main__':
         "single-cutcat-tour": make_new_pop_factory(single_cutcatenate, tournament_selection),
         "multi-cutcat-tour": make_new_pop_factory(multi_cutcatenate, tournament_selection)
     }
+    with open("../result-small.csv", "w") as f:
+        f.write(
+            "generation,method,max_deg,size_construction,size_search,alpha,build_time,memory,search_time,recall\n")
     for method_key in crossover_methods.keys():
-        p0 = generate_p0(20)
-        nsga2_result = nsga2.nsga2(data_apply_function, p0, crossover_methods[method_key], 4, 100)
-        with open("../result.csv", "w") as f:
-            f.write(
-                "generation,method,max_deg,size_construction,size_search,alpha,build_time,memory,search_time,recall\n")
+        p0 = generate_p0(10)
+        nsga2_result = nsga2.nsga2(data_apply_function, p0, crossover_methods[method_key], 4, 10)
+        with open("../result-small.csv", "a") as f:
             for gen_iter, generation in enumerate(nsga2_result.populations):
                 for individual in generation:
                     entry = f"{gen_iter},{method_key}," + str(individual)
