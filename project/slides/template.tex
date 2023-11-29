@@ -1,0 +1,250 @@
+\documentclass{beamer}
+
+\input{preamble.tex}
+\input{macros.tex}
+
+\title{MOO-ing at Expensive Real-world Functions}
+\author{Nawat Ngerncham}
+\date{\today}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}{Overview}
+  \tableofcontents
+\end{frame}
+
+\section{Background}
+
+\begin{frame}{\(k\)-Nearest Neighbor Search}
+\begin{definition}[\(k\)-Nearest Neighbor Search]
+    Given the point set \(\mathcal{P} \subseteq \mathbb{R}^d\), query point \(q \in \mathbb{R}^d\), and a distance function \(\delta\), we want to find a set \(\mathcal{K} \subseteq \mathcal{P}\) such that \(|\mathcal{K}| = k\) and
+    \[
+        \max_{p \in \mathcal{K}} \delta(p, q) \leq \min_{p \in \mathcal{P} \setminus \mathcal{K}} \delta(p, q)
+    \]
+    \end{definition}
+    \begin{itemize}
+        \item Real-world problems where \(k\)-NNS is applied include information retrieval systems and recommendation systems
+        \item Finding exact \(\mathcal{K}\) is expensive, so we usually approximate it instead
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Existing \textit{Solutions}}
+    There are a few approaches to solving (Approximate) \(k\)-NNS:
+    \begin{itemize}
+        \item Naive linear search (too long to compute)
+        \item Hash-based like LSH (does not work in high \(d\))
+        \item Tree-based like \(k\)D-trees (also does not work in high \(d\))
+        \item Graph-based (where the good stuff is)
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Graph-based ANNS Algorithms}
+    Out of all the approaches mentioned, graph-based approaches have shown the best results. Usually, graph-based solutions have 2 main phases:
+    \begin{enumerate}
+        \item Index construction (building the graph)
+        \item Search the index (search the graph)
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}{DiskANN and Vamana}
+    \begin{itemize}
+        \item DiskANN is a system that allows us to perform ANNS tasks
+        \item Vamana is the algorithm used to build to the graph used in DiskANN
+        \item I might (informally) use these interchangeably
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+\begin{algorithm}[H]
+    \caption{GreedySearch Algorithm}\label{alg:greedy-search}
+    \begin{algorithmic}[1]
+        \Function{GreedySearch}{\(G, s, q, k, S\){}}
+            \State{\(\mathcal{L} \gets \left\{s\right\}\); \(\mathcal{V} \gets \emptyset\)}
+            \While{\(\mathcal{L} \setminus \mathcal{V} \neq \emptyset\)}
+                \State{\(p^* \gets \arg\min_{p \in \mathcal{L} \setminus \mathcal{V}} \delta(p, q)\)}
+                \State{\(\mathcal{L} \gets \mathcal{L} \cup N_{\text{out}}(p^*)\)}
+                \State{\(\mathcal{V} \gets \mathcal{V} \cup \left\{p^*\right\}\)}
+                \If{\(|\mathcal{L}| > S\)}
+                    \State{\(\mathcal{L} \gets \textsc{GetClosest}(\mathcal{L}, S)\)}
+                \EndIf
+            \EndWhile
+            \State{\Return{\(\mathcal{L}, \mathcal{V}\)}}
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+
+\textbf{Inputs:} Graph \(G\), Starting point \(s\), Query point \(q\), Number of neighbors \(k\), Candidate set size \(S\)
+\end{frame}
+
+\begin{frame}
+\begin{algorithm}[H]
+    \caption{RobustPrune Algorithm}\label{alg:robust-prune}
+    \begin{algorithmic}[1]
+        \Procedure{RobustPrune}{\(G, p, \mathcal{V}, \alpha, M\){}}
+            \State{\(\mathcal{V} \gets \mathcal{V} \cup N_{\text{out}}(p) \setminus \left\{p\right\};N_\text{out}(p) \gets \emptyset\)}
+            \While{\(\mathcal{V} \neq \emptyset\)}
+                \State{\(p^* \gets \arg\min_{p \in \mathcal{V}} \delta(p, q)\)}
+                \State{\(N_\text{out}(p) \gets N_\text{out}(p) \cup \left\{p^*\right\}\)}
+                \If{\(|N_\text{out}(p) = M\)}
+                    \State{break}
+                \EndIf
+                \For{\(p' \in \mathcal{V}\)}
+                    \If{\(\alpha \cdot \delta(p^*, p') \leq \delta(p, p')\)}
+                        \State{\(\mathcal{V} \gets \mathcal{V} \setminus \left\{p'\right\}\)}
+                    \EndIf
+                \EndFor
+            \EndWhile
+        \EndProcedure
+    \end{algorithmic}
+\end{algorithm}
+
+\textbf{Inputs:} Graph \(G\), Starting point \(p\), Candidate set \(\mathcal{V}\), Distance scaler \(\alpha\), Max degree \(M\)
+\end{frame}
+
+\begin{frame}
+\vspace{-4mm}
+\begin{algorithm}[H]
+    \caption{Vamana Algorithm}\label{alg:vamana}
+    \begin{algorithmic}[1]
+        \Function{VamanaBuild}{\(\mathcal{P}, \alpha, C, M\){}}
+            \State{Initialize \(G\) as random directed graph with max degree \(M\)}
+            \State{\(s \gets \textsc{Medoid}(\mathcal{P})\); \(n \gets |\mathcal{P}|\)}
+            \For{\(p \in \mathcal{P}\)}
+                \State{\(\mathcal{L}, \mathcal{V} \gets \textsc{GreedySearch}(s, p, 1, C)\)}
+                \State{\(\textsc{RobustPrune}(p, \mathcal{V}, \alpha, M)\)}
+                \For{\(p' \in N_\text{out}(p)\)}
+                    \If{\(|N_\text{out}(p') \cup \left\{p'\right\}| > M\)}
+                        \State{\(\textsc{RobustPrune}(p', N_\text{out}(p')\cup\left\{p'\right\}, \alpha, M)\)}
+                    \Else
+                        \State{\(N_\text{out}(p') \gets N_\text{out}(p') \cup \left\{p'\right\}\)}
+                    \EndIf
+                \EndFor
+            \EndFor
+            \State{\Return{\(G\)}}
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+
+\textbf{Inputs:} Point set \(\mathcal{P}\), Dist. scaler \(\alpha\), Candidate size \(C\), Max degree \(M\)
+\end{frame}
+
+\begin{frame}{Parameters of DiskANN}
+    From the three algorithms, we can identify the following parameters:
+    \begin{itemize}
+        \item \(S\) from \textsc{GreedySearch}
+        \item \(C\) from \textsc{VamanaBuild}
+        \item \(M\) from \textsc{VamanaBuild}
+        \item \(\alpha\) from \textsc{RobustPrune} and \textsc{VamanaBuild}
+    \end{itemize}
+
+    These parameters affect the construction time, search time, and search quality (recall) the graph. An obvious question arises: How should we set them? Let's use Optimization to answer that question!
+\end{frame}
+
+\section{Formulation}
+
+\begin{frame}{Decision Variables}
+    Consider the following decision variables:
+    \[
+    \begin{aligned}
+        M &= \text{Maximum degree of \textit{each} vertex in \(G\)} \\
+        C &= \text{Size of the candidate set during construction} \\
+        S &= \text{Size of the candidate set during search} \\
+        \alpha &= \text{Distance threshold for \textsc{RobustPrune}}
+    \end{aligned}
+    \]
+    
+    We then apply the following constraints:
+    \[
+    \begin{aligned}
+        &1 \leq M \leq 1024, & M \in \mathbb{Z} \\
+        &100 \leq C \leq 1024, & C \in \mathbb{Z} \\
+        &100 \leq S \leq 1024, & S \in \mathbb{Z} \\
+        &1 \leq \alpha < 2, &\alpha \in \mathbb{R}
+    \end{aligned}
+    \]
+\end{frame}
+
+\begin{frame}{Objective Functions}
+    Let \(bp\) denote a configuration of the parameters. Consider the following objective functions:
+    \[
+    \begin{aligned}
+        f_c(bp) &= \text{Time taken for constructing the graph, to minimize} \\
+        f_s(bp) &= \text{Time taken to search the queries in total, to minimize} \\
+        f_r(bp) &= \text{Quality of the search results, to maximize}
+    \end{aligned}
+    \]
+
+    We will treat these objective functions as black boxes.
+\end{frame}
+
+\begin{frame}{Full model}
+    \[
+    \begin{aligned}
+        \min_{bp} &\left(f_c(bp), f_s(bp), 1 - f_r(bp)\right) \\
+        \text{s.t.} \qquad
+            &1 \leq M \leq 1024, & M \in \mathbb{Z} \\
+            &100 \leq C \leq 1024, & C \in \mathbb{Z} \\
+            &100 \leq S \leq 1024, & S \in \mathbb{Z} \\
+            &1 \leq \alpha < 2, &\alpha \in \mathbb{R}
+    \end{aligned}
+    \]
+\end{frame}
+
+\section{MOO-ing with NSGA-II}
+
+\subsection{Setup}
+
+\begin{frame}{Encoding the Chromosomes for NSGA-II}
+    For NSGA-II, one individual consists of 4 strings representing each decision variable. They have the following transformation:
+    \begin{itemize}
+        \item For \(M\), its string has length 10 and uses normal positive integer-to-binary conversion
+        \item For \(C\) and \(S\), their strings also has length 10 and uses normal positive integer-to-binary conversion with the condition that if the conversion falls below 100, it defaults to 100
+        \item For \(\alpha\), since it is a real-valued parameter, we convert the string to an integer, say \(x\), then do the following:
+            \[
+                x \mapsto 1 + \frac{x}{1025}
+            \]
+            Note that the denominator is 1025 not 1024 because the interval \(\alpha\) belongs to is \([1, 2)\)
+    \end{itemize}
+\end{frame}
+
+\subsection{Normalization}
+
+\begin{frame}{Nadir and Ideal Point}
+    Let \(X^*\) denote the pareto front and suppose that we have \(m\) objective functions. We have the following:
+    \begin{itemize}
+        \item Nadir point \(z_i^{nad}\) is formally defined by
+            \[
+                z^{nad} = \begin{pmatrix}
+                    \sup_{x^* \in X^*} f_1(x^*) \\
+                    \vdots \\
+                    \sup_{x^* \in X^*} f_m(x^*) \\
+                \end{pmatrix}
+            \]
+        \item Ideal point \(z_i^*\) is formally defined by
+            \[
+                z^{*} = \begin{pmatrix}
+                    \inf_{x^* \in X^*} f_1(x^*) \\
+                    \vdots \\
+                    \inf_{x^* \in X^*} f_m(x^*) \\
+                \end{pmatrix}
+            \]
+    \end{itemize}
+    In this project, the best-found-so-far are used to estimate both points.
+\end{frame}
+
+\begin{frame}{Normalization}
+    The normalization method that we will use is simply as follows: For the \(i\)-th objective value denoted \(f_i\), we normalize it to \(\bar{f_i}\) by
+    \[
+        \bar{f_i} = \frac{f_i - \hat{z}^*_i}{\hat{z}_i^{nad} - \hat{z}_i^*}
+    \]
+
+    Then, we have that \(\bar{f_i} \in [0, 1]\) for any \(i\).
+\end{frame}
+
+\section{Conclusion}
+
+\end{document}
