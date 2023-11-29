@@ -6,7 +6,7 @@ import numpy as np
 from bayes_opt import BayesianOptimization
 
 from algorithms import utils
-from algorithms.main import Scaler, NUM_THREADS
+from algorithms.moo import Scaler, NUM_THREADS
 
 
 def bo_obj_factory(data_set, queries, gts):
