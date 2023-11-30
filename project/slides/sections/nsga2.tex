@@ -63,6 +63,72 @@
 
 \subsection{Results}
 
+\begin{frame}{Crossover and Selection Methods}
+    \begin{table}[h]
+        \caption{Hypervolume by Method without Scaling}
+        \begin{tabular}{ccc}
+            \toprule
+            Crossover & Selection & HV \\
+            \midrule
+            Single cutcat & unif & 0.061649212945264945 \\
+            Multiple cutcat & unif & 0.056557109054404156 \\
+            Single cutcat & tour & 0.06103790681823225 \\
+            Multiple cutcat & tour & 0.059035050860588696 \\
+            \bottomrule
+        \end{tabular}
+    \end{table}
+\end{frame}
+
+\begin{frame}{Crossover and Selection Methods}
+    \begin{table}[h]
+        \caption{Hypervolume by Method with Scaling}
+        \begin{tabular}{ccc}
+            \toprule
+            Crossover & Selection & HV \\
+            \midrule
+            Single cutcat & unif & 0.9944203900902945 \\
+            Multiple cutcat & unif & 0.9746266889006485 \\
+            Single cutcat & tour & 0.9358094034442596 \\
+            Multiple cutcat & tour & 0.9827659412270049 \\
+            \bottomrule
+        \end{tabular}
+    \end{table}
+\end{frame}
+
+\begin{frame}{\textit{Best Solutions without Scaling}}
+    \begin{table}[h]
+        \caption{Top 5 configurations with highest HV}
+        \begin{tabular}{lrrrrr}
+        \toprule
+         & max\_deg & size\_construction & size\_search & alpha & hv \\
+        \midrule
+         & 960 & 373 & 105 & 1.039062 & 0.059254 \\
+         & 960 & 373 & 105 & 1.039062 & 0.059254 \\
+         & 960 & 373 & 105 & 1.039062 & 0.059254 \\
+         & 960 & 373 & 105 & 1.039062 & 0.059254 \\
+         & 13 & 199 & 173 & 1.141602 & 0.059149 \\
+        \bottomrule
+        \end{tabular}
+    \end{table}
+\end{frame}
+
+\begin{frame}{\textit{Best Solutions with Scaling}}
+    \begin{table}[h]
+        \caption{Top 5 configurations with highest HV}
+        \begin{tabular}{lrrrrr}
+        \toprule
+         & max\_deg & size\_construction & size\_search & alpha & hv \\
+        \midrule
+         & 52 & 101 & 149 & 1.019531 & 0.974299 \\
+         & 52 & 101 & 149 & 1.019531 & 0.974299 \\
+         & 929 & 186 & 114 & 1.059570 & 0.963338 \\
+         & 30 & 131 & 140 & 1.180664 & 0.960207 \\
+         & 30 & 131 & 140 & 1.180664 & 0.960207 \\
+        \bottomrule
+        \end{tabular}
+    \end{table}
+\end{frame}
+
 \begin{frame}{Scaling vs. Non-scaling}
     \begin{figure}
         \centering
