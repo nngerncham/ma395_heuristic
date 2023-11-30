@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
+import pandas as pd
 
 
 def load_data(source_path: str | Path, dims: int, tp=np.float32) -> np.ndarray[Any]:
@@ -47,7 +48,35 @@ def bin_to_int(bin_str: str) -> int:
     return int(bin_str, 2)
 
 
+def csv_to_non_dominated_frontier(csv_path: str | Path) -> np.ndarray[np.ndarray[float]]:
+    split_path = csv_path.split("-")
+    front = split_path[:3]
+    back = split_path[-1]
+    target_file = f"../{'-'.join(front)}-frontier-{back}"
+
+    methods = [
+        "single-cutcat-unif",
+        "multi-cutcat-unif",
+        "single-cutcat-tour",
+        "multi-cutcat-tour"
+    ]
+    data = pd.read_csv(csv_path)
+    for method in methods:
+        to_use = data[data["method"] == method]
+
+        def pd_to_individual(row):
+            from moo import BuildParams
+            ind = BuildParams([bin_to_int(row["max_deg"]),
+                               bin_to_int(row["size_construction"]),
+                               bin_to_int(row["size_search"]),
+                               bin_to_int(row["alpha"])])
+            ind.set_build_time(row["build_time"])
+            ind.set_search_time(row["search_time"])
+            ind.set_recall(row["recall"])
+
+        to_use.apply(pd_to_individual)
+
+
 if __name__ == '__main__':
-    data = load_data("/home/nawat/muic/ma395_heuristic/project/algorithms/data/siftsmall/siftsmall_base.fvecs", 128)
-    quality = evaluate_knn(data, data)
-    print(quality)
+    data_path = "../result-scaling.csv"
+    print(csv_to_non_dominated_frontier(data_path))

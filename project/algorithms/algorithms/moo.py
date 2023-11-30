@@ -9,7 +9,7 @@ import numpy as np
 import nsga2
 import utils
 
-NUM_THREADS = 24
+NUM_THREADS = 10
 P_MU = 0.05
 
 
@@ -72,13 +72,13 @@ class Scaler:
 def moo_factory(data_set: np.ndarray[np.ndarray[Any]],
                 queries: np.ndarray[np.ndarray[Any]],
                 gts: np.ndarray[np.ndarray[Any]]):
-    scaler = Scaler(None, None, None, None)
+    # scaler = Scaler(None, None, None, None)  # scaler is created along with apply_function
 
     def apply_function(bps: nsga2.Population):  # modifies the bp object in-place
-        idx_path = "../index2/"
-        build_times = []
-        search_times = []
-        recalls = []
+        idx_path = "../index_non_scaling/"
+        # build_times = []
+        # search_times = []
+        # recalls = []
         for bp in bps:
             os.system("rm -rf " + idx_path + "*")
 
@@ -89,56 +89,50 @@ def moo_factory(data_set: np.ndarray[np.ndarray[Any]],
                                          alpha=bp.alpha(), num_threads=NUM_THREADS)
             end_time = time_ns()
             build_time = (end_time - start_time) / 1e9  # seconds
-            # bp.set_build_time(build_time)
-            build_times.append(build_time)
+            bp.set_build_time(build_time)
+            # build_times.append(build_time)
 
             # memory usage
-            # proc = Process(getpid())
-            # start_mem = proc.memory_info().rss
             index = diskannpy.StaticMemoryIndex(idx_path, distance_metric="l2", num_threads=NUM_THREADS,
                                                 initial_search_complexity=bp.size_search(),
                                                 vector_dtype=np.float32)
-            # end_mem = proc.memory_info().rss
-            # index_size = (end_mem - start_mem) / 1e9
-            # # index_size = (start_mem)
-            # bp.set_memory(index_size)
 
             # search time
             start_time = time_ns()
             results, _ = index.batch_search(queries, 100, bp.size_search(), NUM_THREADS)
             end_time = time_ns()
             search_time = (end_time - start_time) / 1e9  # seconds
-            # bp.set_search_time(search_time)
-            search_times.append(search_time)
+            bp.set_search_time(search_time)
+            # search_times.append(search_time)
 
             # recall
             recall = utils.evaluate_knn(results, gts)
-            # bp.set_recall(recall)
-            recalls.append(recall)
+            bp.set_recall(recall)
+            # recalls.append(recall)
 
-        if scaler.build_min is None:
-            scaler.build_min = min(build_times)
-            scaler.build_max = max(build_times)
-        if min(build_times) < scaler.build_min:
-            scaler.build_min = min(build_times)
-        if max(build_times) > scaler.build_max:
-            scaler.build_max = max(build_times)
+        # if scaler.build_min is None:
+        #     scaler.build_min = min(build_times)
+        #     scaler.build_max = max(build_times)
+        # if min(build_times) < scaler.build_min:
+        #     scaler.build_min = min(build_times)
+        # if max(build_times) > scaler.build_max:
+        #     scaler.build_max = max(build_times)
+        #
+        # if scaler.query_min is None:
+        #     scaler.query_min = min(search_times)
+        #     scaler.query_max = max(search_times)
+        # if min(search_times) < scaler.query_min:
+        #     scaler.query_min = min(search_times)
+        # if max(search_times) > scaler.query_max:
+        #     scaler.query_max = max(search_times)
+        #
+        # for i, bp in enumerate(bps):
+        #     bp.set_build_time((build_times[i] - scaler.build_min) / (scaler.build_max - scaler.build_min))
+        #     bp.set_search_time((search_times[i] - scaler.query_min) / (scaler.query_max - scaler.query_min))
+        #     bp.set_recall(recalls[i])
 
-        if scaler.query_min is None:
-            scaler.query_min = min(search_times)
-            scaler.query_max = max(search_times)
-        if min(search_times) < scaler.query_min:
-            scaler.query_min = min(search_times)
-        if max(search_times) > scaler.query_max:
-            scaler.query_max = max(search_times)
-
-        for i, bp in enumerate(bps):
-            bp.set_build_time((build_times[i] - scaler.build_min) / (scaler.build_max - scaler.build_min))
-            bp.set_search_time((search_times[i] - scaler.query_min) / (scaler.query_max - scaler.query_min))
-            bp.set_recall(recalls[i])
-
-    return apply_function, scaler  # returns scaler as well, so it doesn't get garbage collected
-    # return apply_function
+    # return apply_function, scaler  # returns scaler as well, so it doesn't get garbage collected
+    return apply_function
 
 
 def single_cutcatenate(individual1: BuildParams, individual2: BuildParams):
@@ -238,8 +232,8 @@ if __name__ == '__main__':
     gt = utils.load_data(
         "/home/nawat/muic/ma395_heuristic/project/algorithms/data/siftsmall/siftsmall_groundtruth.ivecs",
         100, np.int32)
-    data_apply_function, _scaler = moo_factory(data, query, gt)
-    # data_apply_function = moo_factory(data, query, gt)
+    # data_apply_function, _scaler = moo_factory(data, query, gt)
+    data_apply_function = moo_factory(data, query, gt)
 
     crossover_methods = {
         "single-cutcat-unif": make_new_pop_factory(single_cutcatenate, uniform_random_selection),
@@ -247,13 +241,15 @@ if __name__ == '__main__':
         "single-cutcat-tour": make_new_pop_factory(single_cutcatenate, tournament_selection),
         "multi-cutcat-tour": make_new_pop_factory(multi_cutcatenate, tournament_selection)
     }
-    with open("../result-small-pop-scaling.csv", "w") as f:
+
+    file_target = "../result-non-scaling-frontier.csv"
+    with open(file_target, "w") as f:
         f.write(
             "generation,method,max_deg,size_construction,size_search,alpha,build_time,memory,search_time,recall\n")
     for method_key in crossover_methods.keys():
         p0 = generate_p0(10)
         nsga2_result = nsga2.nsga2(data_apply_function, p0, crossover_methods[method_key], 4, 10)
-        with open("../result-small-pop-scaling.csv", "a") as f:
+        with open(file_target, "a") as f:
             for gen_iter, generation in enumerate(nsga2_result.populations):
                 for individual in generation:
                     entry = f"{gen_iter},{method_key}," + str(individual)

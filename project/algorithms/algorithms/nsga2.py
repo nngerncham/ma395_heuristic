@@ -40,7 +40,6 @@ ReproductionFunction = Callable[[Population], Population]
 @dataclasses.dataclass
 class NSGA2Result:
     populations: List[Population]  # first frontiers
-    best_individuals: List[Individual]  # best individuals
 
 
 def dominates(individual1: Individual, individual2: Individual):
@@ -114,12 +113,11 @@ def nsga2(compute_obj: ObjectiveFunctionApplier,
     population: OrderedSet = OrderedSet(pop0.copy())
 
     populations = [population]
-    best_pops: List[Individual] = [population[0]]
 
     n = len(population)
     for iters in range(max_generations):
         if len(population) < n:  # too many dupes
-            return NSGA2Result(populations, best_pops)
+            return NSGA2Result(populations)
 
         offsprings = make_new_population(population)
         total_candidates = population.union(offsprings)  # R_t
@@ -139,6 +137,5 @@ def nsga2(compute_obj: ObjectiveFunctionApplier,
         population = OrderedSet(next_population)[:n]
 
         populations.append(fast_non_dominated_sort(population)[0])
-        best_pops.append(population[0])
 
-    return NSGA2Result(populations, best_pops)
+    return NSGA2Result(populations)

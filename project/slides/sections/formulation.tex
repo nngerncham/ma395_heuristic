@@ -1,0 +1,51 @@
+\section{Formulation}
+
+\frame{\insertsection}
+
+\begin{frame}{Decision Variables}
+    Consider the following decision variables:
+    \[
+    \begin{aligned}
+        M &= \text{Maximum degree of \textit{each} vertex in \(G\)} \\
+        C &= \text{Size of the candidate set during construction} \\
+        S &= \text{Size of the candidate set during search} \\
+        \alpha &= \text{Distance threshold for \textsc{RobustPrune}}
+    \end{aligned}
+    \]
+    
+    We then apply the following constraints:
+    \[
+    \begin{aligned}
+        &1 \leq M \leq 1024, & M \in \mathbb{Z} \\
+        &100 \leq C \leq 1024, & C \in \mathbb{Z} \\
+        &100 \leq S \leq 1024, & S \in \mathbb{Z} \\
+        &1 \leq \alpha < 2, &\alpha \in \mathbb{R}
+    \end{aligned}
+    \]
+\end{frame}
+
+\begin{frame}{Objective Functions}
+    Let \(bp\) denote a configuration of the parameters. Consider the following objective functions:
+    \[
+    \begin{aligned}
+        f_c(bp) &= \text{Time taken for constructing the graph, to minimize} \\
+        f_s(bp) &= \text{Time taken to search the queries in total, to minimize} \\
+        f_r(bp) &= \text{Quality of the search results, to maximize}
+    \end{aligned}
+    \]
+
+    We will treat these objective functions as black boxes.
+\end{frame}
+
+\begin{frame}{Full model}
+    \[
+    \begin{aligned}
+        \min_{bp} &\left(f_c(bp), f_s(bp), 1 - f_r(bp)\right) \\
+        \text{s.t.} \qquad
+            &1 \leq M \leq 1024, & M \in \mathbb{Z} \\
+            &100 \leq C \leq 1024, & C \in \mathbb{Z} \\
+            &100 \leq S \leq 1024, & S \in \mathbb{Z} \\
+            &1 \leq \alpha < 2, &\alpha \in \mathbb{R}
+    \end{aligned}
+    \]
+\end{frame}

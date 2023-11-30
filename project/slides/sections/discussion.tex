@@ -1,0 +1,32 @@
+\section{Discussion}
+
+\begin{frame}{Parameters from Literature}
+    In the DiskANN paper, the parameters used for a similar data set was
+    \[
+        M=70, C=125, S=125, \alpha=2
+    \]
+    In another paper that compared different ANNS algorithms, the parameters for DiskANN were:
+    \[
+        M=64, C=128, S=128, \alpha=1.2
+    \]
+\end{frame}
+
+\begin{frame}{NSGA-II}
+    \begin{itemize}
+        \item In general, multi-point cut-catenation works better than single-point
+            \begin{itemize}
+                \item Without scaling, tournament selection works better
+                \item With scaling, uniform random selection works better
+                \item The differences are barely noticable
+            \end{itemize}
+        \item The relative spread of build time and search time are roughly the same but recall can be significantly worse without scaling
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Bayesian Optimization}
+    \begin{itemize}
+        \item \(\alpha\) was the only parameter whose value is pretty close to the value used in the comparison paper
+        \item The rest are \textit{consistently inconsistent}
+        \item From past experience running DiskANN on my machine, using higher parameter values than in the paper has yield better results
+    \end{itemize}
+\end{frame}

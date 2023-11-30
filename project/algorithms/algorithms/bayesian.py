@@ -13,7 +13,7 @@ def bo_obj_factory(data_set, queries, gts):
     scaler = Scaler(None, None, None, None)
 
     def bo_objective(M, C, S, alpha):
-        idx_path = "../index2/"
+        idx_path = "../index_non_scaling/"
         os.system("rm -rf " + idx_path + "*")
         M = int(M * 1024)
         if M == 0:

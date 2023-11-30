@@ -1,0 +1,80 @@
+\section{MOO-ing with NSGA-II(-ish)}
+
+\frame{\insertsection}
+
+\subsection{Setup}
+
+\begin{frame}{Encoding the Chromosomes for NSGA-II}
+    For NSGA-II, one individual consists of 4 strings representing each decision variable. They have the following transformation:
+    \begin{itemize}
+        \item For \(M\), its string has length 10 and uses normal positive integer-to-binary conversion
+        \item For \(C\) and \(S\), their strings also has length 10 and uses normal positive integer-to-binary conversion with the condition that if the conversion falls below 100, it defaults to 100
+        \item For \(\alpha\), since it is a real-valued parameter, we convert the string to an integer, say \(x\), then do the following:
+            \[
+                x \mapsto 1 + \frac{x}{1025}
+            \]
+            Note that the denominator is 1025 not 1024 because the interval \(\alpha\) belongs to is \([1, 2)\)
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Crossover and Selection}
+    The combination of crossover and selection methods used were:
+    \begin{itemize}
+        \item Single cut-catenate crossover with uniform random selection
+        \item Multiple cut-catenate crossover with uniform random selection
+        \item Single cut-catenate crossover with tournament selection
+        \item Multiple cut-catenate crossover with tournament selection
+    \end{itemize}
+\end{frame}
+
+\subsection{Normalization}
+
+\begin{frame}{Nadir and Ideal Point}
+    Let \(X^*\) denote the pareto front and suppose that we have \(m\) objective functions. We have the following:
+    \begin{itemize}
+        \item Nadir point \(z_i^{nad}\) is formally defined by
+            \[
+                z^{nad} = \begin{pmatrix}
+                    \sup_{x^* \in X^*} f_1(x^*) \\
+                    \vdots \\
+                    \sup_{x^* \in X^*} f_m(x^*) \\
+                \end{pmatrix}
+            \]
+        \item Ideal point \(z_i^*\) is formally defined by
+            \[
+                z^{*} = \begin{pmatrix}
+                    \inf_{x^* \in X^*} f_1(x^*) \\
+                    \vdots \\
+                    \inf_{x^* \in X^*} f_m(x^*) \\
+                \end{pmatrix}
+            \]
+    \end{itemize}
+    In this project, the best-found-so-far are used to estimate both points.
+\end{frame}
+
+\begin{frame}{Normalization}
+    The normalization method that we will use is simply as follows: For the \(i\)-th objective value denoted \(f_i\), we normalize it to \(\bar{f_i}\) by
+    \[
+        \bar{f_i} = \frac{f_i - \hat{z}^*_i}{\hat{z}_i^{nad} - \hat{z}_i^*}
+    \]
+
+    Then, we have that \(\bar{f_i} \in [0, 1]\) for any \(i\).
+\end{frame}
+
+\subsection{Results}
+
+\begin{frame}{Scaling vs. Non-scaling}
+    \begin{figure}
+        \centering
+        \hfill
+        \begin{subfigure}{0.49\textwidth}
+            \includegraphics[width=\textwidth]{../images/report/non-scaling.png}
+            \caption{Non-scaling}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}{0.49\textwidth}
+            \includegraphics[width=\textwidth]{../images/report/scaling.png}
+            \caption{Scaling}
+        \end{subfigure}
+    \end{figure}
+\end{frame}

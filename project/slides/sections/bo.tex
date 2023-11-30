@@ -1,0 +1,308 @@
+\section{(Fake) MOO-ing with Bayesian Optimization}
+
+\frame{\insertsection}
+
+\subsection{Setup}
+
+\begin{frame}{Objective Function}
+    The weighted sum of objective functions is used. Namely, for the parameter configuration \(bp\), the objective function \(f\) is defined by
+    \[
+        f(bp) = w_1 \cdot \bar{f_c}(bp) + w_2 \cdot \bar{f_s}(bp) + w_3 \cdot (1 - f_r(bp))
+    \]
+    where the bar signifies that that objective function is normalized and \(w_1, w_2, w_3\) are different weights.
+
+    For the sake of simplicity, we will denote the weights as:
+    \[
+        W = [w_1, w_2, w_3]
+    \]
+\end{frame}
+
+\begin{frame}{Weights to use}
+    The weights used in experiments were:
+    \begin{itemize}
+        \item \([1, 1, 1]\), equal priority
+        \item \([1, 1, 2]\), recall priority
+        \item \([2, 2, 1]\), build and search time priority
+        \item \([1, 2, 3]\), recall over search over build time
+    \end{itemize}
+\end{frame}
+
+\subsection{Results}
+
+\begin{frame}
+    For \(W = [1, 1, 1]\)
+    \begin{figure}
+        \centering
+        \hfill
+        \begin{subfigure}{0.45\textwidth}
+            \includegraphics[width=\textwidth]{../images/report/w111-M.png}
+            % \caption{\(M\) against weighted sum}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}{0.45\textwidth}
+            \includegraphics[width=\textwidth]{../images/report/w111-C.png}
+            % \caption{\(C\) against weighted sum}
+        \end{subfigure}
+        \hfill
+        
+        % \vspace{-2mm}
+
+        \hfill
+        \begin{subfigure}{0.45\textwidth}
+            \includegraphics[width=\textwidth]{../images/report/w111-S.png}
+            % \caption{\(S\) against weighted sum}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}{0.45\textwidth}
+            \includegraphics[width=\textwidth]{../images/report/w111-alpha.png}
+            % \caption{\(\alpha\) against weighted sum}
+        \end{subfigure}
+        \hfill
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \begin{table}
+        \caption{Top 10 configurations for \(W=[1,1,1]\)}
+    \begin{tabular}{lrrrrr}
+    \toprule
+     & M & C & S & alpha & ws \\
+    \midrule
+    10 & 294.000000 & 899.000000 & 225.000000 & 1.173432 & 0.014431 \\
+    11 & 295.000000 & 908.000000 & 198.000000 & 1.176635 & 0.018637 \\
+    28 & 209.000000 & 385.000000 & 386.000000 & 1.173622 & 0.059893 \\
+    66 & 13.000000 & 111.000000 & 461.000000 & 1.102408 & 0.062545 \\
+    52 & 422.000000 & 290.000000 & 331.000000 & 1.069600 & 0.063003 \\
+    32 & 238.000000 & 366.000000 & 387.000000 & 1.157287 & 0.063207 \\
+    22 & 237.000000 & 945.000000 & 156.000000 & 1.154125 & 0.064826 \\
+    20 & 263.000000 & 892.000000 & 192.000000 & 1.171215 & 0.065713 \\
+    9 & 277.000000 & 929.000000 & 227.000000 & 1.214441 & 0.067455 \\
+    27 & 231.000000 & 413.000000 & 383.000000 & 1.183549 & 0.068332 \\
+    \midrule
+    Mean & 247.900000 & 613.800000 & 294.600000 & 1.157631 & 0.054804 \\
+    \bottomrule
+    \end{tabular}
+    \end{table}
+\end{frame}
+
+\begin{frame}
+    For \(W = [1, 1, 2]\)
+    \begin{figure}
+        \centering
+        \hfill
+        \begin{subfigure}{0.45\textwidth}
+            \includegraphics[width=\textwidth]{../images/report/w112-M.png}
+            % \caption{\(M\) against weighted sum}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}{0.45\textwidth}
+            \includegraphics[width=\textwidth]{../images/report/w112-C.png}
+            % \caption{\(C\) against weighted sum}
+        \end{subfigure}
+        \hfill
+        
+        % \vspace{-2mm}
+
+        \hfill
+        \begin{subfigure}{0.45\textwidth}
+            \includegraphics[width=\textwidth]{../images/report/w112-S.png}
+            % \caption{\(S\) against weighted sum}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}{0.45\textwidth}
+            \includegraphics[width=\textwidth]{../images/report/w112-alpha.png}
+            % \caption{\(\alpha\) against weighted sum}
+        \end{subfigure}
+        \hfill
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \begin{table}
+        \caption{Top 10 configurations for \(W=[1,1,2]\)}
+    \begin{tabular}{lrrrrr}
+    \toprule
+     & M & C & S & alpha & ws \\
+    \midrule
+    16 & 568.000000 & 598.000000 & 159.000000 & 1.104854 & 0.055824 \\
+    11 & 600.000000 & 602.000000 & 182.000000 & 1.131278 & 0.057382 \\
+    25 & 552.000000 & 621.000000 & 100.000000 & 1.085884 & 0.065404 \\
+    89 & 539.000000 & 609.000000 & 126.000000 & 1.041355 & 0.076897 \\
+    85 & 576.000000 & 624.000000 & 141.000000 & 1.152214 & 0.087340 \\
+    23 & 589.000000 & 578.000000 & 178.000000 & 1.104949 & 0.090227 \\
+    84 & 39.000000 & 937.000000 & 109.000000 & 1.151568 & 0.093604 \\
+    5 & 613.000000 & 606.000000 & 142.000000 & 1.190785 & 0.095284 \\
+    94 & 570.000000 & 565.000000 & 105.000000 & 1.032839 & 0.096421 \\
+    30 & 596.000000 & 620.000000 & 135.000000 & 1.128348 & 0.101458 \\
+    \midrule
+    Mean & 524.200000 & 636.000000 & 137.700000 & 1.112407 & 0.081984 \\
+    \bottomrule
+    \end{tabular}
+    \end{table}
+\end{frame}
+
+\begin{frame}
+    For \(W = [2, 2, 1]\)
+    \begin{figure}
+        \centering
+        \hfill
+        \begin{subfigure}{0.45\textwidth}
+            \includegraphics[width=\textwidth]{../images/report/w221-M.png}
+            % \caption{\(M\) against weighted sum}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}{0.45\textwidth}
+            \includegraphics[width=\textwidth]{../images/report/w221-C.png}
+            % \caption{\(C\) against weighted sum}
+        \end{subfigure}
+        \hfill
+        
+        % \vspace{-2mm}
+
+        \hfill
+        \begin{subfigure}{0.45\textwidth}
+            \includegraphics[width=\textwidth]{../images/report/w221-S.png}
+            % \caption{\(S\) against weighted sum}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}{0.45\textwidth}
+            \includegraphics[width=\textwidth]{../images/report/w221-alpha.png}
+            % \caption{\(\alpha\) against weighted sum}
+        \end{subfigure}
+        \hfill
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \begin{table}
+        \caption{Top 10 configurations for \(W=[2, 2, 1]\)}
+    \begin{tabular}{lrrrrr}
+    \toprule
+     & M & C & S & alpha & ws \\
+    \midrule
+    9 & 660.000000 & 228.000000 & 187.000000 & 1.197888 & 0.000100 \\
+    12 & 782.000000 & 171.000000 & 100.000000 & 1.089803 & 0.004400 \\
+    97 & 816.000000 & 115.000000 & 164.000000 & 1.182919 & 0.114810 \\
+    37 & 12.000000 & 146.000000 & 396.000000 & 1.486909 & 0.203098 \\
+    13 & 701.000000 & 172.000000 & 214.000000 & 1.151944 & 0.208889 \\
+    34 & 714.000000 & 115.000000 & 126.000000 & 1.589238 & 0.277881 \\
+    62 & 633.000000 & 680.000000 & 183.000000 & 1.089097 & 0.308282 \\
+    79 & 877.000000 & 424.000000 & 272.000000 & 1.013995 & 0.314123 \\
+    8 & 17.000000 & 914.000000 & 449.000000 & 1.633406 & 0.318306 \\
+    47 & 696.000000 & 119.000000 & 192.000000 & 1.389349 & 0.320597 \\
+    \midrule
+    Mean & 590.800000 & 308.400000 & 228.300000 & 1.282455 & 0.207049 \\
+    \bottomrule
+    \end{tabular}
+    \end{table}
+\end{frame}
+
+\begin{frame}
+    For \(W = [1, 2, 3]\)
+    \begin{figure}
+        \centering
+        \hfill
+        \begin{subfigure}{0.45\textwidth}
+            \includegraphics[width=\textwidth]{../images/report/w123-M.png}
+            % \caption{\(M\) against weighted sum}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}{0.45\textwidth}
+            \includegraphics[width=\textwidth]{../images/report/w123-C.png}
+            % \caption{\(C\) against weighted sum}
+        \end{subfigure}
+        \hfill
+        
+        % \vspace{-2mm}
+
+        \hfill
+        \begin{subfigure}{0.45\textwidth}
+            \includegraphics[width=\textwidth]{../images/report/w123-S.png}
+            % \caption{\(S\) against weighted sum}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}{0.45\textwidth}
+            \includegraphics[width=\textwidth]{../images/report/w123-alpha.png}
+            % \caption{\(\alpha\) against weighted sum}
+        \end{subfigure}
+        \hfill
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \begin{table}
+        \caption{Top 10 configurations for \(W=[1, 2, 3]\)}
+    \begin{tabular}{lrrrrr}
+    \toprule
+     & M & C & S & alpha & ws \\
+    \midrule
+    14 & 317.000000 & 295.000000 & 100.000000 & 1.317501 & 0.031633 \\
+    15 & 256.000000 & 310.000000 & 100.000000 & 1.338836 & 0.037280 \\
+    59 & 19.000000 & 862.000000 & 177.000000 & 1.180139 & 0.091437 \\
+    89 & 18.000000 & 850.000000 & 135.000000 & 1.209618 & 0.119993 \\
+    105 & 10.000000 & 1003.000000 & 168.000000 & 1.526575 & 0.148283 \\
+    88 & 218.000000 & 805.000000 & 193.000000 & 1.032512 & 0.159487 \\
+    37 & 267.000000 & 280.000000 & 112.000000 & 1.292019 & 0.160982 \\
+    19 & 293.000000 & 301.000000 & 100.000000 & 1.330278 & 0.164046 \\
+    92 & 195.000000 & 124.000000 & 179.000000 & 1.396043 & 0.179241 \\
+    28 & 226.000000 & 808.000000 & 194.000000 & 1.039740 & 0.189204 \\
+    \midrule
+    Mean & 181.900000 & 563.800000 & 145.800000 & 1.266326 & 0.128159 \\
+    \bottomrule
+    \end{tabular}
+    \end{table}
+\end{frame}
+
+\begin{frame}
+    Combined top 10s
+    \begin{figure}
+        \centering
+        \hfill
+        \begin{subfigure}{0.45\textwidth}
+            \includegraphics[width=\textwidth]{../images/report/wall-M.png}
+            % \caption{\(M\) against weighted sum}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}{0.45\textwidth}
+            \includegraphics[width=\textwidth]{../images/report/wall-C.png}
+            % \caption{\(C\) against weighted sum}
+        \end{subfigure}
+        \hfill
+
+        \hfill
+        \begin{subfigure}{0.45\textwidth}
+            \includegraphics[width=\textwidth]{../images/report/wall-S.png}
+            % \caption{\(S\) against weighted sum}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}{0.45\textwidth}
+            \includegraphics[width=\textwidth]{../images/report/wall-alpha.png}
+            % \caption{\(\alpha\) against weighted sum}
+        \end{subfigure}
+        \hfill
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \begin{table}
+        \caption{Top 10 configurations of the top 10 configurations for each weight}
+    \begin{tabular}{lrrrrr}
+    \toprule
+     & M & C & S & alpha & ws \\
+    \midrule
+    1 & 660.000000 & 228.000000 & 187.000000 & 1.197888 & 0.000100 \\
+    2 & 782.000000 & 171.000000 & 100.000000 & 1.089803 & 0.004400 \\
+    3 & 294.000000 & 899.000000 & 225.000000 & 1.173432 & 0.014431 \\
+    4 & 295.000000 & 908.000000 & 198.000000 & 1.176635 & 0.018637 \\
+    5 & 317.000000 & 295.000000 & 100.000000 & 1.317501 & 0.031633 \\
+    6 & 256.000000 & 310.000000 & 100.000000 & 1.338836 & 0.037280 \\
+    7 & 568.000000 & 598.000000 & 159.000000 & 1.104854 & 0.055824 \\
+    8& 600.000000 & 602.000000 & 182.000000 & 1.131278 & 0.057382 \\
+    9& 209.000000 & 385.000000 & 386.000000 & 1.173622 & 0.059893 \\
+    10& 13.000000 & 111.000000 & 461.000000 & 1.102408 & 0.062545 \\
+    \midrule
+    Mean & 399.400000 & 450.700000 & 209.800000 & 1.180626 & 0.034213 \\
+    \bottomrule
+    \end{tabular}
+    \end{table}
+\end{frame}
