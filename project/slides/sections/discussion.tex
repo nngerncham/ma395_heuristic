@@ -1,5 +1,7 @@
 \section{Discussion}
 
+\frame{\insertsection}
+
 \begin{frame}{Parameters from Literature}
     In the DiskANN paper, the parameters used for a similar data set was
     \[
@@ -14,6 +16,8 @@
 \begin{frame}{NSGA-II}
     \begin{itemize}
         \item The relative spread of build time and search time are roughly the same but recall can be significantly worse without scaling
+        \item Compared to BO, the values is significantly closer to the parameters that come from literature... only if you have scaling
+        \item Scaling the objective functions gives better results overall
     \end{itemize}
 \end{frame}
 

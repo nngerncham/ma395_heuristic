@@ -63,6 +63,40 @@
 
 \subsection{Results}
 
+\begin{frame}{Scaling vs. Non-scaling}
+    \begin{figure}
+        \centering
+        \hfill
+        \begin{subfigure}{0.49\textwidth}
+            \includegraphics[width=\textwidth]{../images/report/non-scaling.png}
+            \caption{Non-scaling}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}{0.49\textwidth}
+            \includegraphics[width=\textwidth]{../images/report/scaling.png}
+            \caption{Scaling}
+        \end{subfigure}
+        \caption{Plots of all points}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Scaling vs. Non-scaling}
+    \begin{figure}
+        \centering
+        \hfill
+        \begin{subfigure}{0.49\textwidth}
+            \includegraphics[width=\textwidth]{../images/report/non-scaling-frontier.png}
+            \caption{Non-scaling}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}{0.49\textwidth}
+            \includegraphics[width=\textwidth]{../images/report/scaling-frontier.png}
+            \caption{Scaling}
+        \end{subfigure}
+        \caption{Plots of points in the first frontier of each generation}
+    \end{figure}
+\end{frame}
+
 \begin{frame}{Crossover and Selection Methods}
     \begin{table}[h]
         \caption{Hypervolume by Method without Scaling}
@@ -129,18 +163,19 @@
     \end{table}
 \end{frame}
 
-\begin{frame}{Scaling vs. Non-scaling}
-    \begin{figure}
-        \centering
-        \hfill
-        \begin{subfigure}{0.49\textwidth}
-            \includegraphics[width=\textwidth]{../images/report/non-scaling.png}
-            \caption{Non-scaling}
-        \end{subfigure}
-        \hfill
-        \begin{subfigure}{0.49\textwidth}
-            \includegraphics[width=\textwidth]{../images/report/scaling.png}
-            \caption{Scaling}
-        \end{subfigure}
-    \end{figure}
+\begin{frame}{Comparison of Objective Values}
+    \begin{table}[h]
+        \begin{tabular}{cccccc}
+            \toprule
+            & \textbf{Non-scaling} & & & \textbf{Scaling} & \\
+            \midrule
+            \textbf{Build} & \textbf{Search} & \textbf{Recall} & \textbf{Build} & \textbf{Search} & \textbf{Recall} \\
+            0.359575 & 0.00106 & 0.9981 & 0.023814 & 0.000633 & 0.9987 \\
+            0.359575 & 0.00106 & 0.9981 & 0.023814 & 0.000633 & 0.9987 \\
+            0.359575 & 0.00106 & 0.9981 & 0.034441 & 0.000000 & 0.9977 \\
+            0.359575 & 0.00106 & 0.9981 & 0.021870 & 0.016751 & 0.9984 \\
+            0.273613 & 0.00117 & 0.9959 & 0.021870 & 0.016751 & 0.9984 \\
+            \bottomrule
+        \end{tabular}
+    \end{table}
 \end{frame}
