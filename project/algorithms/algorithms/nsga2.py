@@ -136,6 +136,7 @@ def nsga2(compute_obj: ObjectiveFunctionApplier,
         next_population = next_population.union(sorted_frontier)
         population = OrderedSet(next_population)[:n]
 
+        # adds only the first frontier
         populations.append(fast_non_dominated_sort(population)[0])
 
     return NSGA2Result(populations)

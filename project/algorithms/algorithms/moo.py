@@ -242,15 +242,17 @@ if __name__ == '__main__':
         "multi-cutcat-tour": make_new_pop_factory(multi_cutcatenate, tournament_selection)
     }
 
+    n_trials = 20
     file_target = "../result-non-scaling-frontier.csv"
     with open(file_target, "w") as f:
         f.write(
-            "generation,method,max_deg,size_construction,size_search,alpha,build_time,memory,search_time,recall\n")
-    for method_key in crossover_methods.keys():
-        p0 = generate_p0(10)
-        nsga2_result = nsga2.nsga2(data_apply_function, p0, crossover_methods[method_key], 4, 10)
-        with open(file_target, "a") as f:
-            for gen_iter, generation in enumerate(nsga2_result.populations):
-                for individual in generation:
-                    entry = f"{gen_iter},{method_key}," + str(individual)
-                    f.write(entry)
+            "trial,generation,method,max_deg,size_construction,size_search,alpha,build_time,memory,search_time,recall\n")
+    for trial in range(n_trials):
+        for method_key in crossover_methods.keys():
+            p0 = generate_p0(10)
+            nsga2_result = nsga2.nsga2(data_apply_function, p0, crossover_methods[method_key], 4, 10)
+            with open(file_target, "a") as f:
+                for gen_iter, generation in enumerate(nsga2_result.populations):
+                    for individual in generation:
+                        entry = f"{trial},{gen_iter},{method_key}," + str(individual)
+                        f.write(entry)
