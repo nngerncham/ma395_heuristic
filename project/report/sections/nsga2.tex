@@ -1,0 +1,178 @@
+\section{MOO-ing with NSGA-II}
+
+\subsection{Encoding the Chromosomes}
+
+For NSGA-II, one individual consists of 4 strings representing each decision variable. They have the following encoding: 
+\begin{itemize}
+    \item For \(M\), its string has length 10 and uses normal positive integer-to-binary conversion
+    \item For \(C\) and \(S\), their strings also has length 10 and uses normal positive integer-to-binary conversion with the condition that if the conversion falls below 100, it defaults to 100
+    \item For \(\alpha\), since it is a real-valued parameter, we convert the string to an integer, say \(x\), then do the following:
+        \[
+            x \mapsto 1 + \frac{x}{1025}
+        \]
+        Note that the denominator is 1025 not 1024 because the interval \(\alpha\) belongs to is \([1, 2)\)
+\end{itemize}
+
+\subsection{Crossover and Selection}
+
+The combination of crossover and selection methods used were:
+\begin{itemize}
+    \item Single cut-catenate crossover with uniform random selection
+    \item Multiple cut-catenate crossover with uniform random selection
+    \item Single cut-catenate crossover with tournament selection
+    \item Multiple cut-catenate crossover with tournament selection
+\end{itemize}
+
+\subsection{Results}
+
+The results shown here are from running NSGA-II on each combination of crossover and selection where each variant runs for 10 generations with 10 individuals each generation. There were 20 trials in total.
+
+\subsubsection{Difference between Scaling and Non-scaling}
+
+Although not very clear, we can see that this problem is not very sensitive to the crossover and selection method. Namely, we can see that the first frontiers of all generations are roughly the same for all any combination of crossover and selection in Figure \ref{fig:joint-frontiers}.
+
+\begin{figure}[ht]
+    \centering
+    \hfill
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../images/report/non-scaling-frontier.png}
+        \caption{Non-scaling}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../images/report/scaling-frontier.png}
+        \caption{Scaling}
+    \end{subfigure}
+    \hfill
+    \caption{Points in the first frontier}
+    \label{fig:joint-frontiers}
+\end{figure}
+
+Since this is quite hard to see since one variant just eclipses the rest, the points are separated by crossover and selection method in Figures \ref{fig:non-scaling-frontiers} and \ref{fig:scaling-frontiers}. Note that all crossovers is just a variant of cutcatenation so the word itself is omitted in the captions.
+
+\begin{figure}[ht]
+    \centering
+    \hfill
+    \begin{subfigure}{0.24\textwidth}
+        \includegraphics[width=\textwidth]{../images/report/non-scaling-frontier-single-unif.png}
+        \caption{Single-Uniform}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.24\textwidth}
+        \includegraphics[width=\textwidth]{../images/report/non-scaling-frontier-single-tour.png}
+        \caption{Single-Uniform}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.24\textwidth}
+        \includegraphics[width=\textwidth]{../images/report/non-scaling-frontier-multi-unif.png}
+        \caption{Multi-Uniform}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.24\textwidth}
+        \includegraphics[width=\textwidth]{../images/report/non-scaling-frontier-multi-tour.png}
+        \caption{Multi-Uniform}
+    \end{subfigure}
+    \hfill
+    \caption{Points in the first frontier of without scaling}
+    \label{fig:non-scaling-frontiers}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \hfill
+    \begin{subfigure}{0.24\textwidth}
+        \includegraphics[width=\textwidth]{../images/report/scaling-frontier-single-unif.png}
+        \caption{Single-Uniform}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.24\textwidth}
+        \includegraphics[width=\textwidth]{../images/report/scaling-frontier-single-tour.png}
+        \caption{Single-Uniform}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.24\textwidth}
+        \includegraphics[width=\textwidth]{../images/report/scaling-frontier-multi-unif.png}
+        \caption{Multi-Uniform}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.24\textwidth}
+        \includegraphics[width=\textwidth]{../images/report/scaling-frontier-multi-tour.png}
+        \caption{Multi-Uniform}
+    \end{subfigure}
+    \hfill
+    \caption{Points in the first frontier of with scaling}
+    \label{fig:scaling-frontiers}
+\end{figure}
+
+To better quantify the results, we will use the Hypervolume of the domination area. However, since the scaling and non-scaling variant occupy different spaces, it cannot be used determine which one is better between the scaling and non-scaling variant. As seen in Table \ref{tbl:hv-scaling}, the hypervolume of the dominated area are almost the same with the exception of the single cutcatenation with uniform selection variant where its hypervolume is significantly lower than the rest. A similar observation can be made when we solve this problem with scaling but the difference between single cutcatenation with uniform selection and the rest is not as drastic as without scaling.
+
+\begin{table}[ht]
+    \centering
+    \caption{Hypervolume by Method}
+    \label{tbl:hv-scaling}
+    \begin{tabular}{cccc}
+        \toprule
+        Crossover & Selection & Non-scaling & Scaling\\
+        \midrule
+        Single cutcatenation & Uniform & 0.06277562259796854 & 0.9856361343801576 \\
+        Multiple cutcatenation & Uniform & 0.06548161972689544 & 0.9911368035243044 \\
+        Single cutcatenation & Tournament & 0.06404157011875183 & 0.9907901748094147 \\
+        Multiple cutcatenation & Tournament & 0.06332794210836813 & 0.9909409694868523 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+Now, let us compare the results between using normalization (scaling) and not using normalization (non-scaling). In Tables \ref{tbl:compare-obj-non-scaling} and \ref{tbl:compare-obj-scaling}, we can see that while the $f_r$ (recall) are roughly the same, build time and search time are significantly better when we use scaling. So, it is better to normalize the objective functions even with the simplest normalizer (scaler).
+
+\begin{table}[ht]
+    \centering
+    \caption{Top 10 parameters and objective values sorted by HV without scaling}
+    \label{tbl:compare-obj-non-scaling}
+    \begin{tabular}{cccccccc}
+        \toprule
+        $M$ & $C$ & $S$ & $\alpha$ & $f_c$ & $f_s$ & $f_r$ & HV \\
+        \midrule
+        26 & 153 & 107 & 1.156250 & 0.174571 & 0.000840 & 0.993600 & 0.062123 \\
+        26 & 153 & 107 & 1.156250 & 0.174571 & 0.000840 & 0.993600 & 0.062123 \\
+        26 & 153 & 107 & 1.156250 & 0.174571 & 0.000840 & 0.993600 & 0.062123 \\
+        734 & 113 & 104 & 1.143555 & 0.155393 & 0.000897 & 0.995000 & 0.061994 \\
+        734 & 113 & 104 & 1.143555 & 0.155393 & 0.000897 & 0.995000 & 0.061994 \\
+        91 & 115 & 107 & 1.125000 & 0.140367 & 0.000941 & 0.995600 & 0.061871 \\
+        771 & 154 & 118 & 1.029297 & 0.169990 & 0.000976 & 0.997400 & 0.061474 \\
+        771 & 154 & 118 & 1.029297 & 0.169990 & 0.000976 & 0.997400 & 0.061474 \\
+        771 & 154 & 118 & 1.029297 & 0.169990 & 0.000976 & 0.997400 & 0.061474 \\
+        771 & 154 & 118 & 1.029297 & 0.169990 & 0.000976 & 0.997400 & 0.061474 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{table}[ht]
+    \centering
+    \caption{Top 10 parameters and objective values sorted by HV with scaling}
+    \label{tbl:compare-obj-scaling}
+    \begin{tabular}{cccccccc}
+        \toprule
+        $M$ & $C$ & $S$ & $\alpha$ & $f_c$ & $f_s$ & $f_r$ & HV \\
+        \midrule
+        25 & 112 & 154 & 1.327148 & 0.018249 & 0.004453 & 0.999300 & 0.976695 \\
+        231 & 120 & 107 & 1.013672 & 0.030292 & 0.006890 & 0.995900 & 0.959078 \\
+        593 & 105 & 201 & 1.056641 & 0.001252 & 0.039502 & 0.999400 & 0.958719 \\
+        593 & 105 & 201 & 1.056641 & 0.001252 & 0.039502 & 0.999400 & 0.958719 \\
+        593 & 105 & 201 & 1.056641 & 0.001252 & 0.039502 & 0.999400 & 0.958719 \\
+        593 & 105 & 201 & 1.056641 & 0.001252 & 0.039502 & 0.999400 & 0.958719 \\
+        593 & 105 & 201 & 1.056641 & 0.001252 & 0.039502 & 0.999400 & 0.958719 \\
+        231 & 128 & 103 & 1.068359 & 0.033138 & 0.007289 & 0.995400 & 0.955399 \\
+        231 & 128 & 103 & 1.068359 & 0.033138 & 0.007289 & 0.995400 & 0.955399 \\
+        231 & 128 & 103 & 1.068359 & 0.033138 & 0.007289 & 0.995400 & 0.955399 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+Based on these results from using NSGA-II, we can see that the ideal values for each parameter are as follows:
+\begin{itemize}
+    \item \(M\) is either around 25, around 230, around 600, or in the range 700-800
+    \item \(C\) is somewhere between around 100 to around 150
+    \item \(S\) is somewhere in the range 100 to 200
+    \item \(\alpha\) is somewhere in \([1, 1.3]\) but around 1 is better
+\end{itemize}
+Note that, since the ideal value for \(M\) seems to jump around alot, it could be the case that the objective values are not so sensitive to \(M\). Still, we cannot really say much since we don't know the true shape of the objective functions (and it's not very practical to find it too). Although the objective values would also change when run on different hardware, it is still useful to have \textit{some} guidelines for what to set the parameters.

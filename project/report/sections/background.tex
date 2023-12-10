@@ -1,0 +1,99 @@
+\section{Background}
+
+\subsection{Motivation}
+
+Before we get into the weeds about this project itself, let me first introduce the motivation behind this project by defining a few things.
+
+\begin{definition}[\(k\)-Nearest Neighbor Search]
+    Given the point set \(\mathcal{P} \subseteq \mathbb{R}^d\), query point \(q \in \mathbb{R}^d\), and a distance function \(\delta\), we want to find a set \(\mathcal{K} \subseteq \mathcal{P}\) such that \(|\mathcal{K}| = k\) and
+    \[
+        \max_{p \in \mathcal{K}} \delta(p, q) \leq \min_{p \in \mathcal{P} \setminus \mathcal{K}} \delta(p, q)
+    \]
+\end{definition}
+
+In the real world, \(k\)-NNS search can be applied in multiple applications such as information retrieval systems and recommendation systems. However, finding exact solution of \(\mathcal{K}\) is expensive especially when the size of the data sets reach billions of data points and thousands of dimensions. As a result, the more approximations are usually the \textit{variant} actually applied in practice. Currently, there are a few approaches to solving (Approximate) \(k\)-NNS:
+\begin{itemize}
+    \item Naive linear search (too long to compute)
+    \item Hash-based like LSH (does not work in high \(d\))
+    \item Tree-based like \(k\)D-trees (also does not work in high \(d\))
+    \item Graph-based (where the good stuff is)
+\end{itemize}
+Out of all the approaches mentioned, graph-based approaches have shown the best results. Usually, graph-based solutions have 2 main phases:
+\begin{enumerate}
+    \item Index construction (building the graph)
+    \item Search the index (search the graph)
+\end{enumerate}
+In general, the search phase is usually the same. Namely, it is a modified greedy search (Algorithm \ref{alg:greedy-search}) that works with the structure of the graph. So, the main difference is in index construction.
+
+As of now, one of the best-performing index construction algorithm is Vamana used in DiskANN, a (disk-focused) graph data structure created to support ANNS processes. The next section will describe the algorithms used in DiskANN.
+
+\subsection{Algorithms}
+
+Now, we will have a look at the algorithms that shows up DiskANN.
+
+Firstly, we will have a look at the greedy search algorithm. Its inputs are: Graph \(G\), Starting point \(s\), Query point \(q\), Number of neighbors \(k\), Candidate set size \(S\). Intuitively, this algorithm essentially starts at starting point \(s\) and traverses the graph where it maintains a collection of nearest neighbor candidiates \(\mathcal{L}\) and always moves to the closest neighbor to the query point \(q\).
+
+\begin{algorithm}[H]
+\caption{GreedySearch Algorithm}\label{alg:greedy-search}
+\begin{algorithmic}[1]
+    \Function{GreedySearch}{\(G, s, q, k, S\){}}
+        \State{\(\mathcal{L} \gets \left\{s\right\}\); \(\mathcal{V} \gets \emptyset\)}
+        \While{\(\mathcal{L} \setminus \mathcal{V} \neq \emptyset\)}
+            \State{\(p^* \gets \arg\min_{p \in \mathcal{L} \setminus \mathcal{V}} \delta(p, q)\)}
+            \State{\(\mathcal{L} \gets \mathcal{L} \cup N_{\text{out}}(p^*)\)}
+            \State{\(\mathcal{V} \gets \mathcal{V} \cup \left\{p^*\right\}\)}
+            \If{\(|\mathcal{L}| > S\)}
+                \State{\(\mathcal{L} \gets \textsc{GetClosest}(\mathcal{L}, S)\)}
+            \EndIf
+        \EndWhile
+        \State{\Return{\(\mathcal{L}, \mathcal{V}\)}}
+    \EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+Next, we will have a look at the algorithms used during index construction. First, let us describe a sub-routine called RobustPrune. The inputs for this algorithm are: Graph \(G\), Starting point \(p\), Candidate set \(\mathcal{V}\), Distance threshold \(\alpha\), Max degree \(M\). Essentially, this algorithm ensures \(p\)'s neighbors are diverse. Namely, the vertex representing a point \(p\) has edges to points in every direction.
+
+\begin{algorithm}[H]
+\caption{RobustPrune Algorithm}\label{alg:robust-prune}
+\begin{algorithmic}[1]
+    \Procedure{RobustPrune}{\(G, p, \mathcal{V}, \alpha, M\){}}
+        \State{\(\mathcal{V} \gets \mathcal{V} \cup N_{\text{out}}(p) \setminus \left\{p\right\};N_\text{out}(p) \gets \emptyset\)}
+        \While{\(\mathcal{V} \neq \emptyset\)}
+            \State{\(p^* \gets \arg\min_{p \in \mathcal{V}} \delta(p, q)\)}
+            \State{\(N_\text{out}(p) \gets N_\text{out}(p) \cup \left\{p^*\right\}\)}
+            \If{\(|N_\text{out}(p) = M\)}
+                \State{break}
+            \EndIf
+            \For{\(p' \in \mathcal{V}\)}
+                \If{\(\alpha \cdot \delta(p^*, p') \leq \delta(p, p')\)}
+                    \State{\(\mathcal{V} \gets \mathcal{V} \setminus \left\{p'\right\}\)}
+                \EndIf
+            \EndFor
+        \EndWhile
+    \EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+Now, we will have a look at the index construction algorithm itself. Its inputs are: Point set \(\mathcal{P}\), Distance threshold \(\alpha\), Candidate size \(C\), Max degree \(M\). This algorithm essentially intializes a graph where its vertices are randomly connected. Then, it goes through the vertices and prunes its neighborhood.
+
+\begin{algorithm}[H]
+\caption{Vamana Algorithm}\label{alg:vamana}
+\begin{algorithmic}[1]
+    \Function{VamanaBuild}{\(\mathcal{P}, \alpha, C, M\){}}
+        \State{Initialize \(G\) as random directed graph with max degree \(M\)}
+        \State{\(s \gets \textsc{Medoid}(\mathcal{P})\); \(n \gets |\mathcal{P}|\)}
+        \For{\(p \in \mathcal{P}\)}
+            \State{\(\mathcal{L}, \mathcal{V} \gets \textsc{GreedySearch}(s, p, 1, C)\)}
+            \State{\(\textsc{RobustPrune}(p, \mathcal{V}, \alpha, M)\)}
+            \For{\(p' \in N_\text{out}(p)\)}
+                \If{\(|N_\text{out}(p') \cup \left\{p'\right\}| > M\)}
+                    \State{\(\textsc{RobustPrune}(p', N_\text{out}(p')\cup\left\{p'\right\}, \alpha, M)\)}
+                \Else
+                    \State{\(N_\text{out}(p') \gets N_\text{out}(p') \cup \left\{p'\right\}\)}
+                \EndIf
+            \EndFor
+        \EndFor
+        \State{\Return{\(G\)}}
+    \EndFunction
+\end{algorithmic}
+\end{algorithm}

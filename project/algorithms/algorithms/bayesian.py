@@ -1,5 +1,7 @@
 import os
+from dataclasses import dataclass
 from time import time_ns
+from typing import List
 
 import diskannpy
 import numpy as np
@@ -9,11 +11,19 @@ from algorithms import utils
 from algorithms.moo import Scaler, NUM_THREADS
 
 
-def bo_obj_factory(data_set, queries, gts):
+@dataclass
+class BOTracker:
+    build_times: List[float]
+    search_times: List[float]
+    recalls: List[float]
+
+
+def bo_obj_factory(data_set, queries, gts, factory_weight):
     scaler = Scaler(None, None, None, None)
+    bo_tracker = BOTracker([], [], [])
 
     def bo_objective(M, C, S, alpha):
-        idx_path = "../index_non_scaling/"
+        idx_path = "../index_scaling2/"
         os.system("rm -rf " + idx_path + "*")
         M = int(M * 1024)
         if M == 0:
@@ -28,6 +38,7 @@ def bo_obj_factory(data_set, queries, gts):
                                      alpha=alpha, num_threads=NUM_THREADS)
         end_time = time_ns()
         build_time = (end_time - start_time) / 1e9  # seconds
+        bo_tracker.build_times.append(build_time)
 
         index = diskannpy.StaticMemoryIndex(idx_path, distance_metric="l2", num_threads=NUM_THREADS,
                                             initial_search_complexity=S,
@@ -38,8 +49,10 @@ def bo_obj_factory(data_set, queries, gts):
         results, _ = index.batch_search(queries, 100, S, NUM_THREADS)
         end_time = time_ns()
         search_time = (end_time - start_time) / 1e9  # seconds
+        bo_tracker.search_times.append(search_time)
 
-        recall = 1 - utils.evaluate_knn(results, gts)
+        recall_error = 1 - utils.evaluate_knn(results, gts)
+        bo_tracker.recalls.append(1 - recall_error)
 
         build_was_none = False
         if scaler.build_min is None:
@@ -69,25 +82,27 @@ def bo_obj_factory(data_set, queries, gts):
         else:
             search_time = (search_time - scaler.query_min) / (scaler.query_max - scaler.query_min)
 
-        return 1 / np.dot([build_time, search_time, recall], [1, 1, 1])
+        obj_value = np.dot([build_time, search_time, recall_error], factory_weight)
+        return 2 / (1 + obj_value)
 
-    return bo_objective, scaler
+    return bo_objective, scaler, bo_tracker
 
 
-def bayesian_optimization(data_set, queries, gts, n_iters=100):
-    bo_objective, scaler = bo_obj_factory(data_set, queries, gts)
+def bayesian_optimization(data_set, queries, gts, bo_weight, n_iters=100):
+    bo_objective, _, bo_tracker = bo_obj_factory(data_set, queries, gts, bo_weight)
     bo = BayesianOptimization(
         bo_objective,
         {
-            'M': (0.00097, 1),
-            'C': (0.098, 1),
-            'S': (0.098, 1),
+            'M': (0.001, 1),
+            'C': (0.1, 1),
+            'S': (0.1, 1),
             'alpha': (1, 2)
         },
+        allow_duplicate_points=True,
     )
 
-    bo.maximize(init_points=10, n_iter=n_iters)
-    return bo.res
+    bo.maximize(init_points=1, n_iter=n_iters)
+    return bo.res, bo_tracker
 
 
 if __name__ == '__main__':
@@ -98,18 +113,28 @@ if __name__ == '__main__':
     gt = utils.load_data(
         "/home/nawat/muic/ma395_heuristic/project/algorithms/data/siftsmall/siftsmall_groundtruth.ivecs",
         100, np.int32)
-    data_apply_function, _scaler = bo_obj_factory(data, query, gt)
-    bo_result = bayesian_optimization(data, query, gt, 100)
-
-    results_name = "../bo-small-111.csv"
-    with open(results_name, "w") as f:
-        f.write("iter,M,C,S,alpha,ws\n")
-    with open(results_name, "a") as f:
-        for gen_iter, generation in enumerate(bo_result):
-            entry = (f"{gen_iter},"
-                     f"{int(generation['params']['M'] * 1024)},"
-                     f"{int(generation['params']['C'] * 1024)},"
-                     f"{int(generation['params']['S'] * 1024)},"
-                     f"{generation['params']['alpha']},"
-                     f"{1 / generation['target']}\n")
-            f.write(entry)
+    weights = [
+        [1, 1, 1],
+        [1, 2, 2],
+        [2, 1, 1],
+        [1, 2, 3],
+    ]
+    for weight in weights:
+        results_name = f"../bo-small-{''.join(map(str, weight))}-unscaled.csv"
+        with open(results_name, "w") as f:
+            f.write("trials,iter,M,C,S,alpha,build_time,search_time,recall,ws\n")
+        for trial in range(20):
+            bo_result, tracker = bayesian_optimization(data, query, gt, weight, 20)
+            with open(results_name, "a") as f:
+                for gen_iter, generation in enumerate(bo_result):
+                    entry = (f"{trial},"
+                             f"{gen_iter},"
+                             f"{int(generation['params']['M'] * 1024)},"
+                             f"{int(generation['params']['C'] * 1024)},"
+                             f"{int(generation['params']['S'] * 1024)},"
+                             f"{generation['params']['alpha']},"
+                             f"{tracker.build_times[gen_iter]},"
+                             f"{tracker.search_times[gen_iter]},"
+                             f"{tracker.recalls[gen_iter]},"
+                             f"{generation['target']}\n")
+                    f.write(entry)

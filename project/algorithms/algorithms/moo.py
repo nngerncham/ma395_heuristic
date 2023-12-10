@@ -6,8 +6,8 @@ from typing import Any, List, Callable, Tuple
 import diskannpy
 import numpy as np
 
-import nsga2
-import utils
+import algorithms.nsga2 as nsga2
+import algorithms.utils as utils
 
 NUM_THREADS = 10
 P_MU = 0.05

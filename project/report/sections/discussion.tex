@@ -1,0 +1,24 @@
+\section{Comparison to Existing Literature}
+
+In the original paper that proposed DiskANN, the parameters that the authors used for a similar data set (but bigger) were
+\[
+    M=70, C=125, S=125, \alpha=2
+\]
+In another paper that surveyed different ANNS algorithms, the parameters for DiskANN were:
+\[
+    M=64, C=128, S=128, \alpha=1.2
+\]
+
+From our results, we can see that the values we got for \(C\) seem to be supporting what the parameters that the original papers were using and our \(\alpha\) seems to be supporting the survey paper. However, our \(M\) seems to be all over the place so the only thing it affects might really be the memory it takes to store the index but this was not included in this project. It is hard to say anything about \(S\) since it seems to have a good range when using NSGA-II but is more random with BO.
+
+\section{Conclusion}
+
+A few things that I've learned from doing this project are:
+\begin{itemize}
+    \item Always normalize the objective value (or data sets) when possible
+    \item NSGA-II and BO can give good solutions with good objective values for MOO problems but NSGA-II tends to be more consistent with its solutions
+    \item The objective values isn't really affected by \(M\) but the best results seem to come from when \(M \in [600..800]\)
+    \item The objective values are best when \(C \in [100..150]\) or something outrageously high like 1024
+    \item The objective values are best when \(S \in [100..200]\) but the problem might not be as sensitive to \(S\) as expected
+    \item The objective values are best when \(\alpha \in [1, 1.3]\) although lower might be better
+\end{itemize}
